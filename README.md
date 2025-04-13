@@ -1,1 +1,1 @@
-just testing git repo
+just for testing git repo
