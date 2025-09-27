@@ -16,7 +16,7 @@ CREATE TABLE operational_amplifiers (
     max_operating_temperature_c TINYINT, 
     package ENUM('SOIC-8', 'SOIC-14', 'DIP-8', 'PDIP-8', 'SOT-23-5', 'SOT-23-6', 
              'QFN-16', 'TSSOP-14', 'MSOP-8', 'LFCSP') NOT NULL, 
-    description VARCHAR(150),
+    description TEXT,
     price DECIMAL(10,2) UNSIGNED
 );
 
