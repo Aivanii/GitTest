@@ -4,30 +4,15 @@ USE company_db;
 CREATE TABLE operational_amplifiers (
     operational_amplifier_id INT PRIMARY KEY AUTO_INCREMENT,
     type VARCHAR(20) NOT NULL,
-    family ENUM('JFET', 'CMOS', 'Bipolar', 'BiFET') NOT NULL, 
+    family ENUM('JFET', 'CMOS', 'Bipolar', 'BiFET') NOT NULL,
     channels TINYINT UNSIGNED NOT NULL,
-    min_supply_voltage_v DECIMAL(4,2) UNSIGNED, 
-    max_supply_voltage_v DECIMAL(4,2) UNSIGNED, 
-    unity_gain_frequency_mhz DECIMAL(6,2) UNSIGNED,
-    slew_rate_v_per_us DECIMAL(5,2) UNSIGNED,
-    input_offset_voltage_mv DECIMAL(5,2) UNSIGNED, 
-    quiescent_current_ma DECIMAL(6,2) UNSIGNED,
-    min_operating_temperature_c TINYINT, 
-    max_operating_temperature_c TINYINT UNSIGNED, 
-    chip_package ENUM('SOIC-8', 'DIP-8', 'SOT-23-5', 'QFN') NOT NULL, 
-    description VARCHAR(150),
     price DECIMAL(5,2) UNSIGNED
 );
 
 CREATE TABLE customers(
     customer_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(30) NOT NULL,
-    manager VARCHAR(70) NOT NULL,
-    account_number VARCHAR(20) NOT NULL,
-    bank VARCHAR(40),
-    additional_info MEDIUMBLOB,
-    contact_person VARCHAR(70),
-    phone VARCHAR(20) NOT NULL, 
+    phone VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL
 );
 
@@ -35,14 +20,7 @@ CREATE TABLE employees(
     employee_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(20) NOT NULL,
     surname VARCHAR(30) NOT NULL,
-    patronymic VARCHAR(20) NOT NULL,
-    sex ENUM('М', 'Ж') NOT NULL,
-    position VARCHAR(50) NOT NULL,
-    start_date DATE NOT NULL,
-    cabinet_number VARCHAR(5),
-    birthdate DATE NOT NULL,
-    profile_picture MEDIUMBLOB,
-    additional_info TEXT
+    position VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE orders(
@@ -50,14 +28,26 @@ CREATE TABLE orders(
     customer_id INT NOT NULL,
     employee_id INT,
     order_date DATE NOT NULL,
-    execution_date DATE
+    execution_date DATE,
+    
+    CONSTRAINT fk_orders_customer 
+        FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+        
+    CONSTRAINT fk_orders_employee 
+        FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );
 
 CREATE TABLE order_details(
     order_detail_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     operational_amplifier_id INT NOT NULL,
-    quantity INT NOT NULL
+    quantity INT NOT NULL,
+    
+    CONSTRAINT fk_order_details_order 
+        FOREIGN KEY (order_id) REFERENCES orders(order_id),
+        
+    CONSTRAINT fk_order_details_amplifier 
+        FOREIGN KEY (operational_amplifier_id) REFERENCES operational_amplifiers(operational_amplifier_id)
 );
 
 CREATE INDEX idx_price ON operational_amplifiers(price);
@@ -72,19 +62,3 @@ CREATE INDEX idx_employee_birthdate ON employees(birthdate);
 
 CREATE INDEX idx_customer_id ON orders(customer_id);
 CREATE INDEX idx_employee_id ON orders(employee_id);
-
-ALTER TABLE orders 
-ADD CONSTRAINT fk_orders_customer 
-FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
-
-ALTER TABLE orders 
-ADD CONSTRAINT fk_orders_employee 
-FOREIGN KEY (employee_id) REFERENCES employees(employee_id);
-
-ALTER TABLE order_details 
-ADD CONSTRAINT fk_order_details_order 
-FOREIGN KEY (order_id) REFERENCES orders(order_id);
-
-ALTER TABLE order_details 
-ADD CONSTRAINT fk_order_details_amplifier 
-FOREIGN KEY (operational_amplifier_id) REFERENCES operational_amplifiers(operational_amplifier_id);
