@@ -88,5 +88,3 @@ FOREIGN KEY (order_id) REFERENCES orders(order_id);
 ALTER TABLE order_details 
 ADD CONSTRAINT fk_order_details_amplifier 
 FOREIGN KEY (operational_amplifier_id) REFERENCES operational_amplifiers(operational_amplifier_id);
-WHERE TABLE_SCHEMA = 'company_db' 
-AND REFERENCED_TABLE_NAME IS NOT NULL;
