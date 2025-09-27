@@ -5,7 +5,7 @@ CREATE TABLE operational_amplifiers (
     operational_amplifier_id INT PRIMARY KEY AUTO_INCREMENT,
     type VARCHAR(20) NOT NULL,
     family ENUM('JFET', 'CMOS', 'Bipolar', 'BiFET') NOT NULL, 
-    channels TINYINT UNSIGNED NOT NULL,
+    channel_count TINYINT UNSIGNED NOT NULL,
     min_supply_voltage_v DECIMAL(4,2) UNSIGNED, 
     max_supply_voltage_v DECIMAL(4,2) UNSIGNED, 
     unity_gain_frequency_mhz DECIMAL(6,2) UNSIGNED,
@@ -28,7 +28,7 @@ CREATE TABLE customers(
     additional_info MEDIUMBLOB,
     contact_person VARCHAR(70) NOT NULL,
     phone VARCHAR(20) NOT NULL, 
-    email VARCHAR(100) NOT NULL
+    email VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE employees(
