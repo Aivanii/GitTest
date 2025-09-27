@@ -17,7 +17,7 @@ CREATE TABLE operational_amplifiers (
     package ENUM('SOIC-8', 'SOIC-14', 'DIP-8', 'PDIP-8', 'SOT-23-5', 'SOT-23-6', 
              'QFN-16', 'TSSOP-14', 'MSOP-8', 'LFCSP') NOT NULL, 
     description VARCHAR(150),
-    price DECIMAL(5,2) UNSIGNED
+    price DECIMAL(10,2) UNSIGNED
 );
 
 CREATE TABLE customers(
