@@ -36,7 +36,7 @@ CREATE TABLE employees(
     name VARCHAR(20) NOT NULL,
     surname VARCHAR(30) NOT NULL,
     patronymic VARCHAR(20) NOT NULL,
-    sex ENUM('М', 'Ж') NOT NULL,
+    gender ENUM('М', 'Ж', 'НБ', 'Х'),
     position VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
     cabinet_number VARCHAR(5),
