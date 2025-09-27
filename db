@@ -1,6 +1,7 @@
 CREATE DATABASE IF NOT EXISTS company_db;
+USE company_db;
 
-CREATE TABLE company_db.operational_amplifiers (
+CREATE TABLE operational_amplifiers (
     operational_amplifier_id INT PRIMARY KEY AUTO_INCREMENT,
     type VARCHAR(20) NOT NULL,
     family ENUM('JFET', 'CMOS', 'Bipolar', 'BiFET') NOT NULL, 
@@ -18,11 +19,7 @@ CREATE TABLE company_db.operational_amplifiers (
     price DECIMAL(5,2) UNSIGNED
 );
 
-CREATE INDEX idx_price ON company_db.operational_amplifiers(price);
-CREATE INDEX idx_quiescent_current_ma ON company_db.operational_amplifiers(quiescent_current_ma);
-CREATE INDEX idx_channels_frequency ON company_db.operational_amplifiers(channels, unity_gain_frequency_mhz);
-
-CREATE TABLE company_db.customers(
+CREATE TABLE customers(
     customer_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(30) NOT NULL,
     manager VARCHAR(70) NOT NULL,
@@ -34,10 +31,7 @@ CREATE TABLE company_db.customers(
     email VARCHAR(100) NOT NULL
 );
 
-CREATE INDEX idx_customer_name ON company_db.customers(name);
-CREATE INDEX idx_contact_person ON company_db.customers(contact_person);
-
-CREATE TABLE company_db.employees(
+CREATE TABLE employees(
     employee_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(20) NOT NULL,
     surname VARCHAR(30) NOT NULL,
@@ -51,10 +45,7 @@ CREATE TABLE company_db.employees(
     additional_info TEXT
 );
 
-CREATE INDEX idx_employee_surname ON company_db.employees(surname);
-CREATE INDEX idx_employee_birthdate ON company_db.employees(birthdate); 
-
-CREATE TABLE company_db.orders(
+CREATE TABLE orders(
     order_id INT PRIMARY KEY AUTO_INCREMENT,
     customer_id INT NOT NULL,
     employee_id INT,
@@ -62,18 +53,26 @@ CREATE TABLE company_db.orders(
     execution_date DATE
 );
 
-CREATE INDEX idx_customer_id ON company_db.orders(customer_id);
-CREATE INDEX idx_employee_id ON company_db.orders(employee_id);
-
-CREATE TABLE company_db.order_details(
+CREATE TABLE order_details(
     order_detail_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     operational_amplifier_id INT NOT NULL,
     quantity INT NOT NULL
 );
 
-////
--- Теперь добавляем FOREIGN KEY отдельно
+CREATE INDEX idx_price ON operational_amplifiers(price);
+CREATE INDEX idx_quiescent_current_ma ON operational_amplifiers(quiescent_current_ma);
+CREATE INDEX idx_channels_frequency ON operational_amplifiers(channels, unity_gain_frequency_mhz);
+
+CREATE INDEX idx_customer_name ON customers(name);
+CREATE INDEX idx_contact_person ON customers(contact_person);
+
+CREATE INDEX idx_employee_surname ON employees(surname);
+CREATE INDEX idx_employee_birthdate ON employees(birthdate);
+
+CREATE INDEX idx_customer_id ON orders(customer_id);
+CREATE INDEX idx_employee_id ON orders(employee_id);
+
 ALTER TABLE orders 
 ADD CONSTRAINT fk_orders_customer 
 FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
@@ -89,3 +88,5 @@ FOREIGN KEY (order_id) REFERENCES orders(order_id);
 ALTER TABLE order_details 
 ADD CONSTRAINT fk_order_details_amplifier 
 FOREIGN KEY (operational_amplifier_id) REFERENCES operational_amplifiers(operational_amplifier_id);
+WHERE TABLE_SCHEMA = 'company_db' 
+AND REFERENCED_TABLE_NAME IS NOT NULL;
