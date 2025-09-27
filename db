@@ -63,7 +63,7 @@ CREATE TABLE orders(
 CREATE TABLE order_details(
     order_detail_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
-    operational_amplifier_id INT NOT NULL,
+    op_amp_id INT NOT NULL,
     quantity INT NOT NULL,
     
     CONSTRAINT fk_order_details_order 
