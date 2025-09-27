@@ -1,3 +1,5 @@
+-- Сначала создаем таблицы без FOREIGN KEY, потом добавляем их отдельно
+
 CREATE TABLE operational_amplifiers (
     operational_amplifier_id INT PRIMARY KEY AUTO_INCREMENT,
     type VARCHAR(20) NOT NULL,
@@ -15,7 +17,6 @@ CREATE TABLE operational_amplifiers (
     description VARCHAR(150),
     price DECIMAL(5,2) UNSIGNED
 );
-
 
 CREATE INDEX idx_price ON operational_amplifiers(price);
 CREATE INDEX idx_quiescent_current_ma ON operational_amplifiers(quiescent_current_ma);
@@ -58,9 +59,7 @@ CREATE TABLE orders(
     customer_id INT NOT NULL,
     employee_id INT,
     order_date DATE NOT NULL,
-    execution_date DATE,
-    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
-    FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+    execution_date DATE
 );
 
 CREATE INDEX idx_customer_id ON orders(customer_id);
@@ -70,8 +69,22 @@ CREATE TABLE order_details(
     order_detail_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     operational_amplifier_id INT NOT NULL,
-    quantity INT NOT NULL,
-
-    FOREIGN KEY (operational_amplifier_id) REFERENCES operational_amplifiers(operational_amplifier_id),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    quantity INT NOT NULL
 );
+
+-- Теперь добавляем FOREIGN KEY отдельно
+ALTER TABLE orders 
+ADD CONSTRAINT fk_orders_customer 
+FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
+
+ALTER TABLE orders 
+ADD CONSTRAINT fk_orders_employee 
+FOREIGN KEY (employee_id) REFERENCES employees(employee_id);
+
+ALTER TABLE order_details 
+ADD CONSTRAINT fk_order_details_order 
+FOREIGN KEY (order_id) REFERENCES orders(order_id);
+
+ALTER TABLE order_details 
+ADD CONSTRAINT fk_order_details_amplifier 
+FOREIGN KEY (operational_amplifier_id) REFERENCES operational_amplifiers(operational_amplifier_id);
