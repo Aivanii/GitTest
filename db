@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS company_db;
 USE company_db;
 
 CREATE TABLE operational_amplifiers (
-    operational_amplifier_id INT PRIMARY KEY AUTO_INCREMENT,
+    op_amp_id INT PRIMARY KEY AUTO_INCREMENT,
     type VARCHAR(20) NOT NULL,
     family ENUM('JFET', 'CMOS', 'Bipolar', 'BiFET') NOT NULL, 
     channel_count TINYINT UNSIGNED NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE order_details(
         FOREIGN KEY (order_id) REFERENCES orders(order_id),
         
     CONSTRAINT fk_order_details_amplifier 
-        FOREIGN KEY (operational_amplifier_id) REFERENCES operational_amplifiers(operational_amplifier_id)
+        FOREIGN KEY (op_amp_id) REFERENCES operational_amplifiers(op_amp_id)
 );
 
 CREATE INDEX idx_price ON operational_amplifiers(price);
