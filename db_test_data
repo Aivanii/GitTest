@@ -32,14 +32,14 @@ INSERT INTO orders (customer_id, employee_id, order_date, execution_date) VALUES
 
 -- 5.
 INSERT INTO order_details (order_id, operational_amplifier_id, quantity) VALUES
-(1, 1, 100),  -- Заказ 1: 100 шт LM358
-(1, 2, 50),   -- Заказ 1: 50 шт TL072
-(2, 3, 200),  -- Заказ 2: 200 шт LM324
-(2, 1, 75),   -- Заказ 2: 75 шт LM358
-(3, 4, 30),   -- Заказ 3: 30 шт OPA2134
-(4, 5, 150),  -- Заказ 4: 150 шт MCP6002
-(4, 2, 25),   -- Заказ 4: 25 шт TL072
-(5, 3, 100);  -- Заказ 5: 100 шт LM324
+(1, 1, 100),
+(1, 2, 50),
+(2, 3, 200),
+(2, 1, 75),
+(3, 4, 30),
+(4, 5, 150),
+(4, 2, 25),
+(5, 3, 100);
 
 -- 6.
 SELECT operational_amplifier_id, type, family, chip_package, price FROM operational_amplifiers;
