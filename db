@@ -24,9 +24,9 @@ CREATE TABLE customers(
     name VARCHAR(30) NOT NULL,
     manager VARCHAR(70) NOT NULL,
     account_number VARCHAR(20) NOT NULL,
-    bank VARCHAR(40),
+    bank VARCHAR(40) NOT NULL,
     additional_info MEDIUMBLOB,
-    contact_person VARCHAR(70),
+    contact_person VARCHAR(70) NOT NULL,
     phone VARCHAR(20) NOT NULL, 
     email VARCHAR(100) NOT NULL
 );
