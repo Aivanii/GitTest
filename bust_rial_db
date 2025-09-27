@@ -1,17 +1,19 @@
 CREATE DATABASE IF NOT EXISTS company_db;
 USE company_db;
+
 CREATE TABLE employees(
     employee_id INT PRIMARY KEY AUTO_INCREMENT,
     first_name VARCHAR(25) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    patronymic VARCHAR(30) ,
+    patronymic VARCHAR(30),
     position VARCHAR(50) NOT NULL,
     hire_date DATE NOT NULL,
-    cabinet_number VARCHAR(10) ,
+    cabinet_number VARCHAR(10),
     date_birth DATE NOT NULL,
-    photo MEDIUMBLOB ,
-    add_information TEXT 
-); 
+    photo MEDIUMBLOB,
+    add_information TEXT
+);
+
 CREATE TABLE customers(
     customers_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(25) NOT NULL,
@@ -21,8 +23,9 @@ CREATE TABLE customers(
     additional_info MEDIUMBLOB,
     contact_person VARCHAR(70) NOT NULL,
     telephone VARCHAR(20) NOT NULL,
-    email_address VARCHAR(50) NOT NULL,
+    email_address VARCHAR(50) NOT NULL
 );
+
 CREATE TABLE operational_amplifiers(
     op_amp_id INT PRIMARY KEY AUTO_INCREMENT,              
     type VARCHAR(20) NOT NULL,                     
@@ -39,7 +42,8 @@ CREATE TABLE operational_amplifiers(
     package ENUM('DIP', 'SOIC', 'QFN', 'TQFP', 'Other') NOT NULL,  
     description TEXT,                               
     price DECIMAL(10,2) NOT NULL
-    );
+);
+
 CREATE TABLE orders(
     order_id INT PRIMARY KEY AUTO_INCREMENT,
     customer_id INT NOT NULL,
@@ -49,16 +53,16 @@ CREATE TABLE orders(
     CONSTRAINT fk_orders_customers
         FOREIGN KEY (customer_id) REFERENCES customers(customers_id),
     CONSTRAINT fk_orders_employees
-        FOREIGN KEY (employee_id) REFERENCES employees(emploee_id)
+        FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
 );
 
-create table order_details(
-    orders_detail_id INT NOT NULL,
+CREATE TABLE order_details(
+    order_detail_id INT PRIMARY KEY AUTO_INCREMENT, 
+    order_id INT NOT NULL,  -- Исправлено имя поля для ясности
     op_amp_id INT NOT NULL,
     quantity INT NOT NULL,
-    CONSTRAINT fk_ordered_orders
-        FOREIGN KEY (orders_detail_id) REFERENCES orders(order_id),
-    CONSTRAINT fk_ordered_operational_amplifiers
+    CONSTRAINT fk_orderdetails_orders
+        FOREIGN KEY (order_id) REFERENCES orders(order_id), 
+    CONSTRAINT fk_orderdetails_operational_amplifiers
         FOREIGN KEY (op_amp_id) REFERENCES operational_amplifiers(op_amp_id)
-      
 );
