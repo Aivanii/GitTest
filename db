@@ -1,6 +1,6 @@
--- Сначала создаем таблицы без FOREIGN KEY, потом добавляем их отдельно
+CREATE DATABASE IF NOT EXISTS company_db;
 
-CREATE TABLE operational_amplifiers (
+CREATE TABLE company_db.operational_amplifiers (
     operational_amplifier_id INT PRIMARY KEY AUTO_INCREMENT,
     type VARCHAR(20) NOT NULL,
     family ENUM('JFET', 'CMOS', 'Bipolar', 'BiFET') NOT NULL, 
@@ -18,9 +18,11 @@ CREATE TABLE operational_amplifiers (
     price DECIMAL(5,2) UNSIGNED
 );
 
-CREATE INDEX idx_price ON operational_amplifiers(price);
-CREATE INDEX idx_quiescent_current_ma ON operational_amplifiers(quiescent_current_ma);
-CREATE INDEX idx_channels_frequency ON operational_amplifiers(channels, unity_gain_frequency_mhz);
+CREATE INDEX idx_price ON company_db.operational_amplifiers(price);
+CREATE INDEX idx_quiescent_current_ma ON company_db.operational_amplifiers(quiescent_current_ma);
+CREATE INDEX idx_channels_frequency ON company_db.operational_amplifiers(channels, unity_gain_frequency_mhz);
+
+///////
 
 CREATE TABLE customers(
     customer_id INT PRIMARY KEY AUTO_INCREMENT,
