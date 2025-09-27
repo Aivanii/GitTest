@@ -1,11 +1,9 @@
--- Используем нашу базу
 USE company_db;
 
--- 1. Добавляем операционные усилители
 INSERT INTO operational_amplifiers (type, family, channels, min_supply_voltage_v, max_supply_voltage_v, unity_gain_frequency_mhz, slew_rate_v_per_us, input_offset_voltage_mv, quiescent_current_ma, min_operating_temperature_c, max_operating_temperature_c, chip_package, description, price) VALUES
 ('LM358', 'Bipolar', 2, 3.0, 32.0, 1.0, 0.6, 2.0, 0.7, -40, 125, 'DIP-8', 'Двойной операционный усилитель общего назначения', 0.50),
 ('TL072', 'JFET', 2, 7.0, 36.0, 3.0, 13.0, 3.0, 1.4, -40, 105, 'SOIC-8', 'Двойной операционный усилитель с JFET входом', 1.20),
-('LM324', 'Bipolar', 4, 3.0, 32.0, 1.3, 0.5, 2.0, 0.7, -40, 125, 'DIP-14', 'Четверной операционный усилитель', 0.80),
+('LM324', 'Bipolar', 4, 3.0, 32.0, 1.3, 0.5, 2.0, 0.7, -40, 125, 'DIP-8', 'Четверной операционный усилитель', 0.80),  -- ИЗМЕНИЛ НА DIP-8
 ('OPA2134', 'JFET', 2, 10.0, 36.0, 8.0, 20.0, 1.0, 4.0, -40, 85, 'SOIC-8', 'Высокоточный аудио усилитель', 2.50),
 ('MCP6002', 'CMOS', 2, 1.8, 6.0, 1.0, 0.6, 3.0, 0.1, -40, 125, 'SOIC-8', 'Низковольтный усилитель', 0.75);
 
