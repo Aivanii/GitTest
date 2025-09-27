@@ -22,9 +22,7 @@ CREATE INDEX idx_price ON company_db.operational_amplifiers(price);
 CREATE INDEX idx_quiescent_current_ma ON company_db.operational_amplifiers(quiescent_current_ma);
 CREATE INDEX idx_channels_frequency ON company_db.operational_amplifiers(channels, unity_gain_frequency_mhz);
 
-///////
-
-CREATE TABLE customers(
+CREATE TABLE company_db.customers(
     customer_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(30) NOT NULL,
     manager VARCHAR(70) NOT NULL,
@@ -36,10 +34,10 @@ CREATE TABLE customers(
     email VARCHAR(100) NOT NULL
 );
 
-CREATE INDEX idx_customer_name ON customers(name);
-CREATE INDEX idx_contact_person ON customers(contact_person);
+CREATE INDEX idx_customer_name ON company_db.customers(name);
+CREATE INDEX idx_contact_person ON company_db.customers(contact_person);
 
-CREATE TABLE employees(
+CREATE TABLE company_db.employees(
     employee_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(20) NOT NULL,
     surname VARCHAR(30) NOT NULL,
@@ -53,10 +51,10 @@ CREATE TABLE employees(
     additional_info TEXT
 );
 
-CREATE INDEX idx_employee_surname ON employees(surname);
-CREATE INDEX idx_employee_birthdate ON employees(birthdate); 
+CREATE INDEX idx_employee_surname ON company_db.employees(surname);
+CREATE INDEX idx_employee_birthdate ON company_db.employees(birthdate); 
 
-CREATE TABLE orders(
+CREATE TABLE company_db.orders(
     order_id INT PRIMARY KEY AUTO_INCREMENT,
     customer_id INT NOT NULL,
     employee_id INT,
@@ -64,16 +62,17 @@ CREATE TABLE orders(
     execution_date DATE
 );
 
-CREATE INDEX idx_customer_id ON orders(customer_id);
-CREATE INDEX idx_employee_id ON orders(employee_id);
+CREATE INDEX idx_customer_id ON company_db.orders(customer_id);
+CREATE INDEX idx_employee_id ON company_db.orders(employee_id);
 
-CREATE TABLE order_details(
+CREATE TABLE company_db.order_details(
     order_detail_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     operational_amplifier_id INT NOT NULL,
     quantity INT NOT NULL
 );
 
+////
 -- Теперь добавляем FOREIGN KEY отдельно
 ALTER TABLE orders 
 ADD CONSTRAINT fk_orders_customer 
