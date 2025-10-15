@@ -51,7 +51,7 @@ CREATE TABLE Suppliers (
     supplier_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     organization_name VARCHAR(100) UNIQUE NOT NULL,
     director VARCHAR(50) NOT NULL,
-    address VARCHAR(200) NOT NULL,
+    address VARCHAR(200) NOT NULL DEFAULT 'Address not specified',
     supplied_chips VARCHAR(500),
     contact_person VARCHAR(50) NOT NULL,
     phone VARCHAR(20) UNIQUE NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE Suppliers (
     org_type_id INT,
     tax_id VARCHAR(20),
     country_id INT,
-    address_legal VARCHAR(200) NOT NULL,
+    address_legal VARCHAR(200) NOT NULL DEFAULT 'Legal address not specified',
     address_actual VARCHAR(200),
     bank_details TEXT,
     quality_rating DECIMAL(3,2) DEFAULT 5.0,
@@ -303,10 +303,31 @@ BEGIN
 END//
 DELIMITER ;
 
-INSERT INTO Suppliers (organization_name, director, address, supplied_chips, contact_person, phone, email)
+INSERT INTO organization_types (type_name, description) VALUES 
+('LLC', 'Limited Liability Company'),
+('JSC', 'Joint Stock Company'),
+('IE', 'Individual Entrepreneur');
+
+INSERT INTO currencies (currency_code, currency_name, symbol) VALUES 
+('RUB', 'Russian Ruble', '₽'),
+('USD', 'US Dollar', '$'),
+('EUR', 'Euro', '€'),
+('CNY', 'Chinese Yuan', '¥');
+
+INSERT INTO countries (country_name, country_code, currency) VALUES 
+('Russia', 'RUS', 'RUB'),
+('USA', 'USA', 'USD'),
+('Germany', 'GER', 'EUR'),
+('China', 'CHN', 'CNY');
+
+INSERT INTO employees (name, surname, position, hire_date, phone, email) VALUES 
+('John', 'Smith', 'Manager', '2023-01-15', '+7(495)111-22-33', 'john@company.com'),
+('Maria', 'Ivanova', 'Sales', '2023-03-20', '+7(495)444-55-66', 'maria@company.com');
+
+INSERT INTO Suppliers (organization_name, director, address, supplied_chips, contact_person, phone, email, address_legal)
 VALUES 
-('ElectronComponents Ltd', 'Ivan Petrov', 'Moscow, Lenina st. 25', 'ATMega328, ESP32', 'Maria Sidorova', '+7(495)123-45-67', 'info@electron.ru'),
-('MicroSystems Inc', 'Alexey Kozlov', 'SPb, Nevsky pr. 100', 'Arduino, Raspberry Pi', 'Anna Ivanova', '+7(812)987-65-43', 'sales@microsys.ru');
+('ElectronComponents Ltd', 'Ivan Petrov', 'Moscow, Lenina st. 25', 'ATMega328, ESP32', 'Maria Sidorova', '+7(495)123-45-67', 'info@electron.ru', 'Moscow, Legal address 25'),
+('MicroSystems Inc', 'Alexey Kozlov', 'SPb, Nevsky pr. 100', 'Arduino, Raspberry Pi', 'Anna Ivanova', '+7(812)987-65-43', 'sales@microsys.ru', 'SPb, Legal address 100');
 
 INSERT INTO Microchips (chip_type, chip_name, price, specifications) 
 VALUES 
