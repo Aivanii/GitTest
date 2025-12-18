@@ -1,7 +1,3 @@
--- =============================================
--- 1. УДАЛЕНИЕ СТАРЫХ ТАБЛИЦ (с правильным порядком из-за FOREIGN KEY)
--- =============================================
-USE test_db;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS shipment;
@@ -14,12 +10,8 @@ DROP TABLE IF EXISTS chips;
 DROP TABLE IF EXISTS manager;
 DROP TABLE IF EXISTS order_details;
 
--- =============================================
--- 2. СОЗДАНИЕ ТАБЛИЦ
--- =============================================
 START TRANSACTION;
 
--- Таблица менеджеров
 CREATE TABLE manager (
     manager_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(15) NOT NULL,
@@ -33,7 +25,6 @@ CREATE TABLE manager (
     CONSTRAINT chk_email_format CHECK (email REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$')
 ) COMMENT 'Менеджеры компании';
 
--- Таблица микросхем
 CREATE TABLE chips (
     chip_id INT AUTO_INCREMENT PRIMARY KEY,
     chip_name VARCHAR(50) NOT NULL UNIQUE,
@@ -47,7 +38,6 @@ CREATE TABLE chips (
     INDEX idx_chip_price (price)
 ) COMMENT 'Каталог микросхем';
 
--- Таблица поставщиков
 CREATE TABLE suppliers (
     supplier_id INT AUTO_INCREMENT PRIMARY KEY,
     company_name VARCHAR(70) NOT NULL UNIQUE,
@@ -75,7 +65,6 @@ CREATE TABLE suppliers (
         ON UPDATE CASCADE
 ) COMMENT 'Поставщики микросхем';
 
--- Таблица связи поставщиков и микросхем
 CREATE TABLE supplier_chips (
     supplier_chip_id INT AUTO_INCREMENT PRIMARY KEY,
     supplier_id INT NOT NULL,
@@ -102,7 +91,6 @@ CREATE TABLE supplier_chips (
     INDEX idx_supply_price (supply_price)
 ) COMMENT 'Какие микросхемы поставляет каждый поставщик';
 
--- Таблица заказов
 CREATE TABLE orders (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     order_date DATE NOT NULL,
@@ -130,7 +118,6 @@ CREATE TABLE orders (
     )
 ) COMMENT 'Заказы от клиентов';
 
--- Таблица позиций заказа
 CREATE TABLE order_items (
     order_item_id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
@@ -153,7 +140,6 @@ CREATE TABLE order_items (
         ON UPDATE CASCADE
 ) COMMENT 'Позиции в заказах';
 
--- Таблица поступлений (приход)
 CREATE TABLE receipt (
     receipt_id INT AUTO_INCREMENT PRIMARY KEY,
     receipt_invoice VARCHAR(50) NOT NULL UNIQUE,
@@ -181,7 +167,6 @@ CREATE TABLE receipt (
         ON UPDATE CASCADE
 ) COMMENT 'Поступление товаров от поставщиков';
 
--- Таблица отгрузок (расход)
 CREATE TABLE shipment (
     shipment_id INT AUTO_INCREMENT PRIMARY KEY,
     shipment_invoice VARCHAR(50) NOT NULL UNIQUE,
@@ -215,12 +200,8 @@ CREATE TABLE shipment (
 
 COMMIT;
 
--- =============================================
--- 3. ТРИГГЕРЫ ДЛЯ АВТОМАТИЧЕСКИХ РАСЧЕТОВ
--- =============================================
 DELIMITER $$
 
--- Триггер для обновления общей суммы заказа
 CREATE TRIGGER update_order_total
 AFTER INSERT ON order_items
 FOR EACH ROW
@@ -262,9 +243,6 @@ END$$
 
 DELIMITER ;
 
--- =============================================
--- 4. ВСТАВКА ТЕСТОВЫХ ДАННЫХ
--- =============================================
 START TRANSACTION;
 
 -- Менеджеры
