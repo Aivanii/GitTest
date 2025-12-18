@@ -1,6 +1,9 @@
 -- =============================================
 -- 1. УДАЛЕНИЕ СТАРЫХ ТАБЛИЦ (с правильным порядком из-за FOREIGN KEY)
 -- =============================================
+USE test_db;
+SET FOREIGN_KEY_CHECKS = 0;
+
 DROP TABLE IF EXISTS shipment;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
@@ -9,6 +12,7 @@ DROP TABLE IF EXISTS supplier_chips;
 DROP TABLE IF EXISTS suppliers;
 DROP TABLE IF EXISTS chips;
 DROP TABLE IF EXISTS manager;
+DROP TABLE IF EXISTS order_details;
 
 -- =============================================
 -- 2. СОЗДАНИЕ ТАБЛИЦ
