@@ -5521,7 +5521,7 @@ function schedulePreviewRender() {
 
     var $stats = $('#schedule-preview-stats').empty();
     var $employeeStat = $('<div class="schedule-preview-stat"></div>');
-    $employeeStat.append($('<div class="schedule-preview-stat-icon">👥</div>'));
+    $employeeStat.append($('<div class="schedule-preview-stat-icon">01</div>'));
     var $employeeStatText = $('<div></div>');
     $employeeStatText.append($('<span class="schedule-preview-stat-value"></span>').text(employeeIds.length));
     $employeeStatText.append($('<span class="schedule-preview-stat-label">Сотрудников затронуто</span>'));
@@ -5529,7 +5529,7 @@ function schedulePreviewRender() {
     $stats.append($employeeStat);
 
     var $dateStat = $('<div class="schedule-preview-stat"></div>');
-    $dateStat.append($('<div class="schedule-preview-stat-icon">↗</div>'));
+    $dateStat.append($('<div class="schedule-preview-stat-icon">02</div>'));
     var $dateStatText = $('<div></div>');
     $dateStatText.append($('<span class="schedule-preview-stat-value"></span>').text(totalChangedDates));
     $dateStatText.append($('<span class="schedule-preview-stat-label">Изменений по датам</span>'));
@@ -5558,7 +5558,6 @@ function schedulePreviewRender() {
                 .attr('data-avatar-src', avatarBaseUrl + String(employee.avatar))
                 .attr('data-avatar-initial', initial);
             $avatarWrap.append($avatar);
-            employeeAvatarCache.register($avatar[0], true);
         } else {
             $avatarWrap.append($('<span class="schedule-preview-avatar-fallback"></span>').text(initial));
         }
@@ -5620,6 +5619,9 @@ function schedulePreviewRender() {
         $details.append($days);
         $employee.append($details);
         $list.append($employee);
+
+        var $avatarImage = $employee.find('.schedule-preview-avatar-wrap img[data-avatar-src]').first();
+        if ($avatarImage.length) employeeAvatarCache.register($avatarImage[0], true);
     });
 }
 function schedulePreviewRefreshButton() {
@@ -5627,7 +5629,7 @@ function schedulePreviewRefreshButton() {
     schedulePreviewEnsureUi();
     var count = Object.keys(scheduleChangeLog).length;
     $('#schedule-change-preview-trigger')
-        .toggle(count > 0)
+        .css('display', count > 0 ? 'inline-flex' : 'none')
         .find('.schedule-preview-count').text(count);
     if ($('#schedule-change-preview-modal').hasClass('active')) schedulePreviewRender();
 }
