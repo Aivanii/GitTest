@@ -5385,51 +5385,88 @@ function schedulePreviewEnsureUi() {
     schedulePreviewUiReady = true;
 
     var css = [
-        '#schedule-change-preview-trigger{position:fixed!important;right:22px!important;bottom:22px!important;z-index:100020!important;display:none;align-items:center;gap:9px;padding:13px 18px;border:0;border-radius:999px;background:#7655c7;color:#fff;font:700 13px/1.2 inherit;box-shadow:0 8px 24px rgba(50,35,95,.28);cursor:pointer}',
-        '#schedule-change-preview-trigger:hover{background:#6443b4}',
-        '#schedule-change-preview-trigger .schedule-preview-count{display:inline-flex;min-width:22px;height:22px;align-items:center;justify-content:center;padding:0 6px;border-radius:999px;background:#fff;color:#6443b4;font-size:11px}',
-        '#schedule-change-preview-modal .schedule-preview-modal-card{width:min(980px,96vw);max-height:88vh;overflow:auto}',
-        '#schedule-change-preview-modal .schedule-preview-intro{margin:0 0 14px;color:#64748b;font-size:12px}',
-        '#schedule-change-preview-modal .schedule-preview-employee{margin:12px 0;padding:13px;border:1px solid #e7e8f0;border-radius:11px;background:#fff}',
-        '#schedule-change-preview-modal .schedule-preview-employee-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}',
-        '#schedule-change-preview-modal .schedule-preview-employee-name{font-size:14px;font-weight:800;color:#1e293b}',
-        '#schedule-change-preview-modal .schedule-preview-diff-title{margin:8px 0 7px;font-size:12px;font-weight:800;color:#475569}',
-        '#schedule-change-preview-modal .schedule-preview-diff-head,#schedule-change-preview-modal .schedule-preview-diff-row{display:grid;grid-template-columns:88px minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}',
-        '#schedule-change-preview-modal .schedule-preview-diff-head{padding:6px 8px;color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase}',
-        '#schedule-change-preview-modal .schedule-preview-diff-row{padding:8px;border-top:1px solid #eef0f5;font-size:12px}',
-        '#schedule-change-preview-modal .schedule-preview-diff-date{font-weight:700;color:#334155}',
-        '#schedule-change-preview-modal .schedule-preview-old{color:#9f3a38}',
-        '#schedule-change-preview-modal .schedule-preview-new{color:#167447;font-weight:700}',
-        '#schedule-change-preview-modal .schedule-preview-full-schedule{margin-top:12px;border-top:1px solid #eef0f5;padding-top:9px}',
-        '#schedule-change-preview-modal .schedule-preview-full-schedule summary{cursor:pointer;color:#5b46a4;font-size:12px;font-weight:800}',
-        '#schedule-change-preview-modal .schedule-preview-days{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:5px;margin-top:9px}',
-        '#schedule-change-preview-modal .schedule-preview-day{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:7px;background:#f8f9fc;font-size:11px}',
-        '#schedule-change-preview-modal .schedule-preview-day-date{flex:0 0 78px;color:#64748b;font-weight:700}',
-        '#schedule-change-preview-modal .schedule-preview-day-place{min-width:0;text-align:right;color:#334155}',
-        '#schedule-change-preview-modal .schedule-preview-actions{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:15px}',
-        '#schedule-change-preview-modal .schedule-preview-actions-right{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}',
-        '#schedule-change-preview-modal .schedule-preview-send-all{background:#7655c7;color:#fff;border-color:#7655c7;font-weight:800}',
-        '#schedule-change-preview-modal .schedule-preview-send-one{white-space:nowrap}',
-        '@media(max-width:600px){#schedule-change-preview-trigger{right:12px!important;bottom:12px!important;padding:12px 14px}#schedule-change-preview-modal .schedule-preview-diff-head,#schedule-change-preview-modal .schedule-preview-diff-row{grid-template-columns:1fr;gap:4px}#schedule-change-preview-modal .schedule-preview-diff-head{display:none}#schedule-change-preview-modal .schedule-preview-diff-row{padding:9px 0}#schedule-change-preview-modal .schedule-preview-employee-head{align-items:flex-start}}'
+        '#schedule-change-preview-trigger{position:fixed!important;right:22px!important;bottom:22px!important;z-index:100020!important;display:none;align-items:center;justify-content:center;gap:10px;min-height:50px;box-sizing:border-box;padding:0 19px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:linear-gradient(135deg,#7655c7 0%,#6244ad 100%);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:13px;font-weight:750;line-height:1;letter-spacing:.01em;white-space:nowrap;box-shadow:0 10px 28px rgba(66,45,126,.28),0 2px 5px rgba(35,24,70,.12);cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}',
+        '#schedule-change-preview-trigger:hover{transform:translateY(-2px);background:linear-gradient(135deg,#6847b8 0%,#56389d 100%);box-shadow:0 14px 32px rgba(66,45,126,.34),0 3px 8px rgba(35,24,70,.14)}',
+        '#schedule-change-preview-trigger:focus-visible{outline:3px solid rgba(118,85,199,.28);outline-offset:3px}',
+        '#schedule-change-preview-trigger .schedule-preview-trigger-label{display:inline-flex;align-items:center;justify-content:center;min-height:24px;line-height:1}',
+        '#schedule-change-preview-trigger .schedule-preview-count{display:inline-flex;flex:0 0 25px;align-items:center;justify-content:center;width:25px;min-width:25px;height:25px;margin:0 0 0 3px;padding:0;border:1px solid rgba(98,68,173,.12);border-radius:50%;background:#fff;color:#6244ad;font-size:11px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;vertical-align:middle}',
+        '#schedule-change-preview-modal{padding:20px;background:rgba(13,18,35,.58);backdrop-filter:blur(7px)}',
+        '#schedule-change-preview-modal .schedule-preview-modal-card{width:min(1040px,96vw);max-height:90vh;overflow:auto;padding:26px;border:1px solid rgba(230,232,242,.95);border-radius:20px;background:#f8f9fc;box-shadow:0 28px 80px rgba(15,23,42,.28)}',
+        '#schedule-change-preview-modal .schedule-preview-modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}',
+        '#schedule-change-preview-modal .schedule-preview-eyebrow{margin:0 0 6px;color:#7655c7;font-size:10px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}',
+        '#schedule-change-preview-modal .schedule-modal-title{margin:0;color:#172033;font-size:23px;font-weight:850;line-height:1.2;letter-spacing:-.035em}',
+        '#schedule-change-preview-modal .schedule-preview-intro{max-width:650px;margin:7px 0 0;color:#68758a;font-size:12.5px;line-height:1.55}',
+        '#schedule-change-preview-modal .schedule-preview-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 18px}',
+        '#schedule-change-preview-modal .schedule-preview-stat{display:flex;align-items:center;gap:12px;min-height:70px;padding:12px 15px;border:1px solid #e7e9f1;border-radius:13px;background:#fff;box-shadow:0 2px 7px rgba(28,38,66,.025)}',
+        '#schedule-change-preview-modal .schedule-preview-stat-icon{display:flex;flex:0 0 38px;align-items:center;justify-content:center;width:38px;height:38px;border-radius:11px;background:#f1edfb;color:#6e4db8;font-size:17px;font-weight:800}',
+        '#schedule-change-preview-modal .schedule-preview-stat-value{display:block;color:#1c2740;font-size:20px;font-weight:850;line-height:1.1;font-variant-numeric:tabular-nums}',
+        '#schedule-change-preview-modal .schedule-preview-stat-label{display:block;margin-top:4px;color:#7b8799;font-size:10.5px;font-weight:650}',
+        '#schedule-change-preview-modal .schedule-preview-section-label{display:flex;align-items:center;gap:9px;margin:4px 0 9px;color:#344054;font-size:12px;font-weight:800}',
+        '#schedule-change-preview-modal .schedule-preview-section-label:after{height:1px;flex:1;background:#e7eaf1;content:""}',
+        '#schedule-change-preview-modal .schedule-preview-employee{margin:0 0 12px;padding:17px;border:1px solid #e6e9f1;border-radius:15px;background:#fff;box-shadow:0 3px 12px rgba(28,38,66,.035);transition:border-color .18s ease,box-shadow .18s ease}',
+        '#schedule-change-preview-modal .schedule-preview-employee:hover{border-color:#d8d2eb;box-shadow:0 7px 20px rgba(55,43,91,.07)}',
+        '#schedule-change-preview-modal .schedule-preview-employee-head{display:flex;align-items:center;gap:13px;margin-bottom:15px}',
+        '#schedule-change-preview-modal .schedule-preview-avatar-wrap{display:flex;flex:0 0 54px;align-items:center;justify-content:center;width:54px;height:54px;overflow:hidden;border:3px solid #f1edfb;border-radius:50%;background:#ebe7f5;box-shadow:0 0 0 1px #e5def4}',
+        '#schedule-change-preview-modal .schedule-preview-avatar-wrap .avatar-image-frame{width:54px;height:54px;flex:0 0 54px;border-radius:50%}',
+        '#schedule-change-preview-modal .schedule-preview-avatar-wrap > .schedule-preview-avatar-fallback{display:flex;align-items:center;justify-content:center;width:54px;height:54px;border:0;border-radius:50%;background:linear-gradient(135deg,#eae4f8,#f3f0fa);color:#6749aa;font-size:18px;font-weight:850}',
+        '#schedule-change-preview-modal .schedule-preview-employee-info{min-width:0;flex:1}',
+        '#schedule-change-preview-modal .schedule-preview-employee-name{display:block;overflow:hidden;color:#1e293b;font-size:14px;font-weight:850;line-height:1.35;text-overflow:ellipsis}',
+        '#schedule-change-preview-modal .schedule-preview-employee-meta{display:block;margin-top:4px;color:#7b8799;font-size:11px;line-height:1.35}',
+        '#schedule-change-preview-modal .schedule-preview-change-count{display:inline-flex;align-items:center;justify-content:center;margin-top:6px;padding:3px 8px;border:1px solid #e8e1f6;border-radius:999px;background:#f7f4fc;color:#6c4cae;font-size:10px;font-weight:800}',
+        '#schedule-change-preview-modal .schedule-preview-send-one{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;min-height:36px;padding:0 12px;border:1px solid #e3def0;border-radius:9px;background:#fff;color:#6547a9;font-size:11px;font-weight:750;white-space:nowrap;transition:background .15s ease,border-color .15s ease}',
+        '#schedule-change-preview-modal .schedule-preview-send-one:hover{border-color:#cfc4e6;background:#f8f6fc}',
+        '#schedule-change-preview-modal .schedule-preview-diff-title{margin:0 0 8px;color:#475467;font-size:11px;font-weight:850;letter-spacing:.04em;text-transform:uppercase}',
+        '#schedule-change-preview-modal .schedule-preview-diff-head,#schedule-change-preview-modal .schedule-preview-diff-row{display:grid;grid-template-columns:100px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:center}',
+        '#schedule-change-preview-modal .schedule-preview-diff-head{padding:0 10px 7px;color:#98a2b3;font-size:9px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}',
+        '#schedule-change-preview-modal .schedule-preview-diff-row{min-height:44px;padding:8px 10px;border-top:1px solid #f0f1f5;font-size:11px}',
+        '#schedule-change-preview-modal .schedule-preview-diff-date{color:#475467;font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}',
+        '#schedule-change-preview-modal .schedule-preview-diff-value{min-width:0}',
+        '#schedule-change-preview-modal .schedule-preview-mobile-label{display:none}',
+        '#schedule-change-preview-modal .schedule-preview-place-pill{display:inline-flex;max-width:100%;align-items:center;padding:6px 9px;border-radius:8px;font-size:11px;font-weight:700;line-height:1.35;overflow-wrap:anywhere}',
+        '#schedule-change-preview-modal .schedule-preview-old .schedule-preview-place-pill{background:#fff2f1;color:#a3443f}',
+        '#schedule-change-preview-modal .schedule-preview-new .schedule-preview-place-pill{background:#edf8f1;color:#23784d}',
+        '#schedule-change-preview-modal .schedule-preview-full-schedule{margin-top:14px;padding-top:12px;border-top:1px solid #edf0f5}',
+        '#schedule-change-preview-modal .schedule-preview-full-schedule summary{display:flex;align-items:center;gap:8px;cursor:pointer;color:#6648aa;font-size:11px;font-weight:800;list-style:none}',
+        '#schedule-change-preview-modal .schedule-preview-full-schedule summary::-webkit-details-marker{display:none}',
+        '#schedule-change-preview-modal .schedule-preview-full-schedule summary:before{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:7px;background:#f1edfb;color:#694bb0;content:"+";font-size:15px;line-height:1}',
+        '#schedule-change-preview-modal .schedule-preview-full-schedule[open] summary:before{content:"−"}',
+        '#schedule-change-preview-modal .schedule-preview-days{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:6px;margin-top:10px}',
+        '#schedule-change-preview-modal .schedule-preview-day{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:33px;padding:7px 9px;border:1px solid #eef0f5;border-radius:8px;background:#fbfcfe;font-size:10.5px}',
+        '#schedule-change-preview-modal .schedule-preview-day-date{flex:0 0 78px;color:#7b8799;font-size:10px;font-weight:750;font-variant-numeric:tabular-nums}',
+        '#schedule-change-preview-modal .schedule-preview-day-place{min-width:0;text-align:right;color:#344054;font-weight:650;overflow-wrap:anywhere}',
+        '#schedule-change-preview-modal .schedule-preview-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid #e6e9f1}',
+        '#schedule-change-preview-modal .schedule-preview-send-all{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border:1px solid #6c4bb4;border-radius:10px;background:linear-gradient(135deg,#7655c7,#6244ad);color:#fff;font-size:11px;font-weight:800;box-shadow:0 4px 11px rgba(99,70,169,.18)}',
+        '#schedule-change-preview-modal .schedule-preview-send-all:hover{background:linear-gradient(135deg,#6747b8,#56399e)}',
+        '#schedule-change-preview-modal .schedule-preview-close{min-height:40px;padding:0 15px;border:1px solid #e1e5ed;border-radius:10px;background:#fff;color:#475467;font-size:11px;font-weight:750}',
+        '#schedule-change-preview-modal .schedule-preview-empty{padding:32px 18px;border:1px dashed #dfe3ec;border-radius:14px;background:#fff;text-align:center;color:#7b8799;font-size:12px}',
+        '@media(max-width:650px){#schedule-change-preview-trigger{right:12px!important;bottom:12px!important;min-height:46px;padding:0 14px;font-size:12px}#schedule-change-preview-modal{padding:8px}#schedule-change-preview-modal .schedule-preview-modal-card{width:100%;max-height:94vh;padding:17px;border-radius:16px}#schedule-change-preview-modal .schedule-preview-modal-header{margin-bottom:13px}#schedule-change-preview-modal .schedule-modal-title{font-size:20px}#schedule-change-preview-modal .schedule-preview-stats{gap:7px}#schedule-change-preview-modal .schedule-preview-stat{min-height:62px;padding:9px}#schedule-change-preview-modal .schedule-preview-stat-icon{width:32px;height:32px;flex-basis:32px}#schedule-change-preview-modal .schedule-preview-stat-value{font-size:17px}#schedule-change-preview-modal .schedule-preview-employee{padding:13px}#schedule-change-preview-modal .schedule-preview-employee-head{flex-wrap:wrap;gap:10px}#schedule-change-preview-modal .schedule-preview-employee-info{min-width:calc(100% - 78px)}#schedule-change-preview-modal .schedule-preview-send-one{margin-left:67px}#schedule-change-preview-modal .schedule-preview-diff-head{display:none}#schedule-change-preview-modal .schedule-preview-diff-row{grid-template-columns:1fr;gap:6px;padding:10px 2px}#schedule-change-preview-modal .schedule-preview-diff-value{display:flex;align-items:flex-start;gap:8px}#schedule-change-preview-modal .schedule-preview-mobile-label{display:inline-block;flex:0 0 46px;padding-top:5px;color:#98a2b3;font-size:9px;font-weight:850;text-transform:uppercase}#schedule-change-preview-modal .schedule-preview-place-pill{flex:1}#schedule-change-preview-modal .schedule-preview-footer{align-items:stretch;flex-direction:column}#schedule-change-preview-modal .schedule-preview-send-all,#schedule-change-preview-modal .schedule-preview-close{width:100%}}'
     ].join('');
 
     $('<style type="text/css" id="schedule-change-preview-style"></style>').text(css).appendTo('head');
 
-    var $trigger = $('<button type="button" id="schedule-change-preview-trigger"><span>Посмотреть изменения</span><span class="schedule-preview-count">0</span></button>');
+    var $trigger = $('<button type="button" id="schedule-change-preview-trigger"><span class="schedule-preview-trigger-label">Посмотреть изменения</span><span class="schedule-preview-count">0</span></button>');
     $('body').append($trigger);
 
     var $modal = $('<div id="schedule-change-preview-modal" class="schedule-modal" aria-hidden="true" role="dialog" aria-modal="true"></div>');
     var $card = $('<div class="schedule-modal-card schedule-preview-modal-card"></div>');
-    $card.append($('<h3 class="schedule-modal-title">Новый график и изменения</h3>'));
-    $card.append($('<p class="schedule-preview-intro" id="schedule-preview-intro"></p>'));
+
+    var $header = $('<div class="schedule-preview-modal-header"></div>');
+    var $headerCopy = $('<div></div>');
+    $headerCopy.append($('<div class="schedule-preview-eyebrow">Обновления графика</div>'));
+    $headerCopy.append($('<h3 class="schedule-modal-title">Изменения в расписании</h3>'));
+    $headerCopy.append($('<p class="schedule-preview-intro" id="schedule-preview-intro"></p>'));
+    $header.append($headerCopy);
+    $card.append($header);
+
+    var $stats = $('<div class="schedule-preview-stats" id="schedule-preview-stats"></div>');
+    $card.append($stats);
+    $card.append($('<div class="schedule-preview-section-label">Сотрудники с изменениями</div>'));
     $card.append($('<div id="schedule-preview-employees"></div>'));
 
-    var $actions = $('<div class="schedule-preview-actions"></div>');
-    var $sendAll = $('<button type="button" class="mode-btn schedule-preview-send-all">Отправить всем</button>');
-    var $rightActions = $('<div class="schedule-preview-actions-right"></div>');
-    var $close = $('<button type="button" class="mode-btn" id="schedule-preview-close">Закрыть</button>');
-    $rightActions.append($close);
-    $actions.append($sendAll, $rightActions);
+    var $actions = $('<div class="schedule-preview-footer"></div>');
+    var $sendAll = $('<button type="button" class="schedule-preview-send-all">Отправить всем</button>');
+    var $close = $('<button type="button" class="schedule-preview-close" id="schedule-preview-close">Закрыть</button>');
+    $actions.append($sendAll, $close);
     $card.append($actions);
     $modal.append($card);
     $('body').append($modal);
@@ -5451,7 +5488,7 @@ function schedulePreviewEnsureUi() {
     $(document).on('click.scheduleChangePreview', '.schedule-preview-send-one', function () {
         var id = String($(this).attr('data-employee-id') || '');
         var employee = employeesList[id];
-        var name = employee && employee.name ? employee.name : ('ID ' + id);
+        var name = employee && employee.name ? employee.name : ('Сотрудник ID ' + id);
         schedulePreviewNotify('Заглушка: отправка сообщения сотруднику «' + name + '» будет подключена позже.');
     });
 
@@ -5471,10 +5508,36 @@ function schedulePreviewRender() {
         return String(nameA).localeCompare(String(nameB), 'ru');
     });
 
-    $('#schedule-preview-intro').text('Сохранённые изменения: ' + employeeIds.length + ' сотрудников. Ниже показано, что изменилось, и актуальный график каждого сотрудника за выбранный месяц.');
+    var totalChangedDates = 0;
+    $.each(employeeIds, function (index, employeeId) {
+        totalChangedDates += Object.keys(scheduleChangeLog[employeeId].dates).length;
+    });
+
+    $('#schedule-preview-intro').text(
+        employeeIds.length
+            ? 'Проверьте сохранённые изменения и актуальное расписание сотрудников за выбранный месяц.'
+            : 'В этом месяце пока нет сохранённых изменений.'
+    );
+
+    var $stats = $('#schedule-preview-stats').empty();
+    var $employeeStat = $('<div class="schedule-preview-stat"></div>');
+    $employeeStat.append($('<div class="schedule-preview-stat-icon">👥</div>'));
+    var $employeeStatText = $('<div></div>');
+    $employeeStatText.append($('<span class="schedule-preview-stat-value"></span>').text(employeeIds.length));
+    $employeeStatText.append($('<span class="schedule-preview-stat-label">Сотрудников затронуто</span>'));
+    $employeeStat.append($employeeStatText);
+    $stats.append($employeeStat);
+
+    var $dateStat = $('<div class="schedule-preview-stat"></div>');
+    $dateStat.append($('<div class="schedule-preview-stat-icon">↗</div>'));
+    var $dateStatText = $('<div></div>');
+    $dateStatText.append($('<span class="schedule-preview-stat-value"></span>').text(totalChangedDates));
+    $dateStatText.append($('<span class="schedule-preview-stat-label">Изменений по датам</span>'));
+    $dateStat.append($dateStatText);
+    $stats.append($dateStat);
 
     if (!employeeIds.length) {
-        $list.append($('<div class="backup-empty">Пока нет сохранённых изменений графика.</div>'));
+        $list.append($('<div class="schedule-preview-empty">После сохранения изменений здесь появятся сотрудники, их новые смены и сравнение с предыдущим графиком.</div>'));
         return;
     }
 
@@ -5483,22 +5546,57 @@ function schedulePreviewRender() {
         var employeeName = employee.name || ('Сотрудник ID ' + employeeId);
         var employeeLog = scheduleChangeLog[employeeId];
         var changedDates = Object.keys(employeeLog.dates).sort();
+        var initialSource = String(employee.first_name || employee.name || '?').replace(/^\s+|\s+$/g, '');
+        var initial = initialSource ? initialSource.charAt(0).toLocaleUpperCase() : '?';
 
         var $employee = $('<section class="schedule-preview-employee"></section>');
         var $head = $('<div class="schedule-preview-employee-head"></div>');
-        $head.append($('<div class="schedule-preview-employee-name"></div>').text(employeeName));
-        $head.append($('<button type="button" class="mode-btn schedule-preview-send-one"></button>').attr('data-employee-id', employeeId).text('Отправить сообщение'));
+        var $avatarWrap = $('<span class="emp-popup-avatar-wrap schedule-preview-avatar-wrap"></span>');
+
+        if (employee.avatar) {
+            var $avatar = $('<img alt="" loading="lazy" decoding="async">')
+                .attr('data-avatar-src', avatarBaseUrl + String(employee.avatar))
+                .attr('data-avatar-initial', initial);
+            $avatarWrap.append($avatar);
+            employeeAvatarCache.register($avatar[0], true);
+        } else {
+            $avatarWrap.append($('<span class="schedule-preview-avatar-fallback"></span>').text(initial));
+        }
+        $head.append($avatarWrap);
+
+        var $employeeInfo = $('<div class="schedule-preview-employee-info"></div>');
+        $employeeInfo.append($('<span class="schedule-preview-employee-name"></span>').text(employeeName));
+        if (employee.post) {
+            $employeeInfo.append($('<span class="schedule-preview-employee-meta"></span>').text(String(employee.post)));
+        } else {
+            $employeeInfo.append($('<span class="schedule-preview-employee-meta"></span>').text('Изменён график работы'));
+        }
+        $employeeInfo.append($('<span class="schedule-preview-change-count"></span>').text(changedDates.length + (changedDates.length === 1 ? ' изменение' : ' изменений')));
+        $head.append($employeeInfo);
+
+        var $sendButton = $('<button type="button" class="schedule-preview-send-one">Отправить сообщение</button>')
+            .attr('data-employee-id', employeeId);
+        $head.append($sendButton);
         $employee.append($head);
 
-        $employee.append($('<div class="schedule-preview-diff-title">Изменения</div>'));
+        $employee.append($('<div class="schedule-preview-diff-title">Что изменилось</div>'));
         $employee.append($('<div class="schedule-preview-diff-head"><span>Дата</span><span>Было</span><span>Стало</span></div>'));
 
         $.each(changedDates, function (dateIndex, date) {
             var diff = employeeLog.dates[date];
             var $row = $('<div class="schedule-preview-diff-row"></div>');
             $row.append($('<div class="schedule-preview-diff-date"></div>').text(schedulePreviewFormatDate(date)));
-            $row.append($('<div class="schedule-preview-old"></div>').text(schedulePreviewPlaceText(diff.before)));
-            $row.append($('<div class="schedule-preview-new"></div>').text(schedulePreviewPlaceText(diff.after)));
+
+            var $before = $('<div class="schedule-preview-diff-value schedule-preview-old"></div>');
+            $before.append($('<span class="schedule-preview-mobile-label">Было</span>'));
+            $before.append($('<span class="schedule-preview-place-pill"></span>').text(schedulePreviewPlaceText(diff.before)));
+            $row.append($before);
+
+            var $after = $('<div class="schedule-preview-diff-value schedule-preview-new"></div>');
+            $after.append($('<span class="schedule-preview-mobile-label">Стало</span>'));
+            $after.append($('<span class="schedule-preview-place-pill"></span>').text(schedulePreviewPlaceText(diff.after)));
+            $row.append($after);
+
             $employee.append($row);
         });
 
@@ -5506,13 +5604,14 @@ function schedulePreviewRender() {
         var workDayCount = 0;
         $.each(schedulePreviewDays, function (dayIndex, date) {
             var dayMap = assignMap[date] || {};
-            if (normalizePlaceList(dayMap[employeeId] || []).length) workDayCount++;
+            if (normalizePlaceList(dayMap[employeeId] || dayMap[String(employeeId)] || []).length) workDayCount++;
         });
-        $details.append($('<summary></summary>').text('Новый график за месяц: ' + workDayCount + ' смен (показать все даты)'));
+
+        $details.append($('<summary></summary>').text('Полный график за месяц · ' + workDayCount + ' смен'));
         var $days = $('<div class="schedule-preview-days"></div>');
         $.each(schedulePreviewDays, function (dayIndex, date) {
             var dayMap = assignMap[date] || {};
-            var places = normalizePlaceList(dayMap[employeeId] || []);
+            var places = normalizePlaceList(dayMap[employeeId] || dayMap[String(employeeId)] || []);
             var $day = $('<div class="schedule-preview-day"></div>');
             $day.append($('<span class="schedule-preview-day-date"></span>').text(schedulePreviewFormatDate(date)));
             $day.append($('<span class="schedule-preview-day-place"></span>').text(schedulePreviewPlaceText(places)));
