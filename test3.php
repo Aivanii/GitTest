@@ -5368,6 +5368,37 @@ function schedulePreviewFormatDate(value) {
     var match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
     return match ? match[3] + '.' + match[2] + '.' + match[1] : String(value || '');
 }
+function schedulePreviewWeekday(value) {
+    var match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return '';
+    var date = new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10));
+    var weekdays = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+    return weekdays[date.getDay()];
+}
+function schedulePreviewBuildEmployeeMessage(employeeId) {
+    var id = String(employeeId);
+    var employee = employeesList[id] || {};
+    var employeeLog = scheduleChangeLog[id];
+    if (!employeeLog) return '';
+
+    var firstName = String(employee.first_name || '').replace(/^\s+|\s+$/g, '');
+    var lines = [
+        'Здравствуйте' + (firstName ? ', ' + firstName : '') + '!',
+        '',
+        'В вашем графике произошли изменения. Новое расписание:'
+    ];
+
+    Object.keys(employeeLog.dates).sort().forEach(function (date) {
+        var dayName = schedulePreviewWeekday(date);
+        var newPlaces = schedulePreviewCopyPlaces(employeeLog.dates[date].after);
+        var placeText = newPlaces.length
+            ? schedulePreviewPlaceText(newPlaces)
+            : 'Смена не назначена (выходной)';
+        lines.push(schedulePreviewFormatDate(date) + (dayName ? ' (' + dayName + ')' : '') + ' — ' + placeText);
+    });
+
+    return lines.join('\n');
+}
 function schedulePreviewPlaceText(placeKeys) {
     var labels = [];
     $.each(schedulePreviewCopyPlaces(placeKeys), function (index, key) {
@@ -5439,6 +5470,12 @@ function schedulePreviewEnsureUi() {
         '#schedule-change-preview-modal .schedule-preview-send-all:hover{background:linear-gradient(135deg,#6747b8,#56399e)}',
         '#schedule-change-preview-modal .schedule-preview-close{min-height:40px;padding:0 15px;border:1px solid #e1e5ed;border-radius:10px;background:#fff;color:#475467;font-size:11px;font-weight:750}',
         '#schedule-change-preview-modal .schedule-preview-empty{padding:32px 18px;border:1px dashed #dfe3ec;border-radius:14px;background:#fff;text-align:center;color:#7b8799;font-size:12px}',
+        '#schedule-change-preview-modal .schedule-preview-message{margin-top:14px;padding:12px;border:1px solid #e9eaf1;border-radius:11px;background:#fafbfe}',
+        '#schedule-change-preview-modal .schedule-preview-message-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}',
+        '#schedule-change-preview-modal .schedule-preview-message-title{color:#475467;font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}',
+        '#schedule-change-preview-modal .schedule-preview-copy-message{min-height:29px;padding:0 9px;border:1px solid #e2def0;border-radius:7px;background:#fff;color:#6547a9;font-size:10px;font-weight:750;cursor:pointer}',
+        '#schedule-change-preview-modal .schedule-preview-message-text{display:block;width:100%;min-height:94px;margin:0;padding:10px 11px;resize:vertical;border:1px solid #e4e7ee;border-radius:8px;background:#fff;color:#344054;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;line-height:1.65;white-space:pre-wrap}',
+        '#schedule-change-preview-modal .schedule-preview-message-hint{margin:6px 0 0;color:#98a2b3;font-size:9.5px;line-height:1.4}',
         '@media(max-width:650px){#schedule-change-preview-trigger{right:12px!important;bottom:12px!important;min-height:46px;padding:0 14px;font-size:12px}#schedule-change-preview-modal{padding:8px}#schedule-change-preview-modal .schedule-preview-modal-card{width:100%;max-height:94vh;padding:17px;border-radius:16px}#schedule-change-preview-modal .schedule-preview-modal-header{margin-bottom:13px}#schedule-change-preview-modal .schedule-modal-title{font-size:20px}#schedule-change-preview-modal .schedule-preview-stats{gap:7px}#schedule-change-preview-modal .schedule-preview-stat{min-height:62px;padding:9px}#schedule-change-preview-modal .schedule-preview-stat-icon{width:32px;height:32px;flex-basis:32px}#schedule-change-preview-modal .schedule-preview-stat-value{font-size:17px}#schedule-change-preview-modal .schedule-preview-employee{padding:13px}#schedule-change-preview-modal .schedule-preview-employee-head{flex-wrap:wrap;gap:10px}#schedule-change-preview-modal .schedule-preview-employee-info{min-width:calc(100% - 78px)}#schedule-change-preview-modal .schedule-preview-send-one{margin-left:67px}#schedule-change-preview-modal .schedule-preview-diff-head{display:none}#schedule-change-preview-modal .schedule-preview-diff-row{grid-template-columns:1fr;gap:6px;padding:10px 2px}#schedule-change-preview-modal .schedule-preview-diff-value{display:flex;align-items:flex-start;gap:8px}#schedule-change-preview-modal .schedule-preview-mobile-label{display:inline-block;flex:0 0 46px;padding-top:5px;color:#98a2b3;font-size:9px;font-weight:850;text-transform:uppercase}#schedule-change-preview-modal .schedule-preview-place-pill{flex:1}#schedule-change-preview-modal .schedule-preview-footer{align-items:stretch;flex-direction:column}#schedule-change-preview-modal .schedule-preview-send-all,#schedule-change-preview-modal .schedule-preview-close{width:100%}}'
     ].join('');
 
@@ -5490,6 +5527,12 @@ function schedulePreviewEnsureUi() {
         var employee = employeesList[id];
         var name = employee && employee.name ? employee.name : ('Сотрудник ID ' + id);
         schedulePreviewNotify('Заглушка: отправка сообщения сотруднику «' + name + '» будет подключена позже.');
+    });
+    $(document).on('click.scheduleChangePreview', '.schedule-preview-copy-message', function () {
+        var id = String($(this).attr('data-employee-id') || '');
+        var message = schedulePreviewBuildEmployeeMessage(id);
+        if (message && typeof copyToClipboard === 'function') copyToClipboard(message);
+        else if (message) schedulePreviewNotify('Не удалось скопировать текст сообщения.');
     });
 
     schedulePreviewRefreshButton();
@@ -5598,6 +5641,23 @@ function schedulePreviewRender() {
 
             $employee.append($row);
         });
+
+        var messageText = schedulePreviewBuildEmployeeMessage(employeeId);
+        var $messageBlock = $('<div class="schedule-preview-message"></div>');
+        var $messageHead = $('<div class="schedule-preview-message-head"></div>');
+        $messageHead.append($('<span class="schedule-preview-message-title">Текст сообщения для сотрудника</span>'));
+        var $copyMessage = $('<button type="button" class="schedule-preview-copy-message">Копировать текст</button>')
+            .attr('data-employee-id', employeeId);
+        $messageHead.append($copyMessage);
+        $messageBlock.append($messageHead);
+        var messageRows = Math.max(4, Math.min(10, messageText.split('\n').length + 1));
+        var $messageTextarea = $('<textarea class="schedule-preview-message-text" readonly spellcheck="false"></textarea>')
+            .attr('aria-label', 'Текст сообщения для ' + employeeName)
+            .attr('rows', messageRows)
+            .val(messageText);
+        $messageBlock.append($messageTextarea);
+        $messageBlock.append($('<p class="schedule-preview-message-hint">Это предварительный текст. Кнопка отправки пока не подключена; другой разработчик сможет использовать этот шаблон для бота.</p>'));
+        $employee.append($messageBlock);
 
         var $details = $('<details class="schedule-preview-full-schedule"></details>');
         var workDayCount = 0;
