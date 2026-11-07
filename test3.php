@@ -5312,6 +5312,227 @@ $(function(){
     });
 })();
 
+
+/*
+ * Предпросмотр сохранённых изменений графика.
+ * changeEmployeeAssignment вызывается только после успешного ответа saveCell,
+ * поэтому неуспешные попытки редактирования в этот журнал не попадают.
+ */
+var schedulePreviewDays = <?= CJSON::encode(array_values($days)) ?>;
+var scheduleChangeLog = {};
+var schedulePreviewUiReady = false;
+
+function schedulePreviewCopyPlaces(value) {
+    return normalizePlaceList(value).slice(0);
+}
+function schedulePreviewSamePlaces(first, second) {
+    var a = schedulePreviewCopyPlaces(first).map(String).sort();
+    var b = schedulePreviewCopyPlaces(second).map(String).sort();
+    return JSON.stringify(a) === JSON.stringify(b);
+}
+function schedulePreviewRecordChange(date, employeeId, beforePlaces, afterPlaces) {
+    if (!isEditMode || !employeeId) return;
+    var id = String(employeeId);
+    if (!employeesList[id]) return;
+
+    var before = schedulePreviewCopyPlaces(beforePlaces);
+    var after = schedulePreviewCopyPlaces(afterPlaces);
+    var employeeLog = scheduleChangeLog[id];
+
+    if (!employeeLog) {
+        employeeLog = { employeeId: id, dates: {} };
+        scheduleChangeLog[id] = employeeLog;
+    }
+
+    if (!employeeLog.dates[date]) {
+        employeeLog.dates[date] = {
+            before: before,
+            after: after
+        };
+    } else {
+        employeeLog.dates[date].after = after;
+    }
+
+    var change = employeeLog.dates[date];
+    if (schedulePreviewSamePlaces(change.before, change.after)) {
+        delete employeeLog.dates[date];
+    }
+
+    if (!Object.keys(employeeLog.dates).length) {
+        delete scheduleChangeLog[id];
+    }
+
+    schedulePreviewRefreshButton();
+}
+function schedulePreviewFormatDate(value) {
+    var match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return match ? match[3] + '.' + match[2] + '.' + match[1] : String(value || '');
+}
+function schedulePreviewPlaceText(placeKeys) {
+    var labels = [];
+    $.each(schedulePreviewCopyPlaces(placeKeys), function (index, key) {
+        var label = schedulePlaceNames[key] || String(key);
+        if ($.inArray(label, labels) === -1) labels.push(label);
+    });
+    return labels.length ? labels.join(', ') : 'Нет назначений';
+}
+function schedulePreviewNotify(message) {
+    if (typeof showToast === 'function') showToast(message);
+    else window.alert(message);
+}
+function schedulePreviewEnsureUi() {
+    if (!isEditMode || schedulePreviewUiReady) return;
+    schedulePreviewUiReady = true;
+
+    var css = [
+        '#schedule-change-preview-trigger{position:fixed!important;right:22px!important;bottom:22px!important;z-index:100020!important;display:none;align-items:center;gap:9px;padding:13px 18px;border:0;border-radius:999px;background:#7655c7;color:#fff;font:700 13px/1.2 inherit;box-shadow:0 8px 24px rgba(50,35,95,.28);cursor:pointer}',
+        '#schedule-change-preview-trigger:hover{background:#6443b4}',
+        '#schedule-change-preview-trigger .schedule-preview-count{display:inline-flex;min-width:22px;height:22px;align-items:center;justify-content:center;padding:0 6px;border-radius:999px;background:#fff;color:#6443b4;font-size:11px}',
+        '#schedule-change-preview-modal .schedule-preview-modal-card{width:min(980px,96vw);max-height:88vh;overflow:auto}',
+        '#schedule-change-preview-modal .schedule-preview-intro{margin:0 0 14px;color:#64748b;font-size:12px}',
+        '#schedule-change-preview-modal .schedule-preview-employee{margin:12px 0;padding:13px;border:1px solid #e7e8f0;border-radius:11px;background:#fff}',
+        '#schedule-change-preview-modal .schedule-preview-employee-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}',
+        '#schedule-change-preview-modal .schedule-preview-employee-name{font-size:14px;font-weight:800;color:#1e293b}',
+        '#schedule-change-preview-modal .schedule-preview-diff-title{margin:8px 0 7px;font-size:12px;font-weight:800;color:#475569}',
+        '#schedule-change-preview-modal .schedule-preview-diff-head,#schedule-change-preview-modal .schedule-preview-diff-row{display:grid;grid-template-columns:88px minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}',
+        '#schedule-change-preview-modal .schedule-preview-diff-head{padding:6px 8px;color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase}',
+        '#schedule-change-preview-modal .schedule-preview-diff-row{padding:8px;border-top:1px solid #eef0f5;font-size:12px}',
+        '#schedule-change-preview-modal .schedule-preview-diff-date{font-weight:700;color:#334155}',
+        '#schedule-change-preview-modal .schedule-preview-old{color:#9f3a38}',
+        '#schedule-change-preview-modal .schedule-preview-new{color:#167447;font-weight:700}',
+        '#schedule-change-preview-modal .schedule-preview-full-schedule{margin-top:12px;border-top:1px solid #eef0f5;padding-top:9px}',
+        '#schedule-change-preview-modal .schedule-preview-full-schedule summary{cursor:pointer;color:#5b46a4;font-size:12px;font-weight:800}',
+        '#schedule-change-preview-modal .schedule-preview-days{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:5px;margin-top:9px}',
+        '#schedule-change-preview-modal .schedule-preview-day{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:7px;background:#f8f9fc;font-size:11px}',
+        '#schedule-change-preview-modal .schedule-preview-day-date{flex:0 0 78px;color:#64748b;font-weight:700}',
+        '#schedule-change-preview-modal .schedule-preview-day-place{min-width:0;text-align:right;color:#334155}',
+        '#schedule-change-preview-modal .schedule-preview-actions{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:15px}',
+        '#schedule-change-preview-modal .schedule-preview-actions-right{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}',
+        '#schedule-change-preview-modal .schedule-preview-send-all{background:#7655c7;color:#fff;border-color:#7655c7;font-weight:800}',
+        '#schedule-change-preview-modal .schedule-preview-send-one{white-space:nowrap}',
+        '@media(max-width:600px){#schedule-change-preview-trigger{right:12px!important;bottom:12px!important;padding:12px 14px}#schedule-change-preview-modal .schedule-preview-diff-head,#schedule-change-preview-modal .schedule-preview-diff-row{grid-template-columns:1fr;gap:4px}#schedule-change-preview-modal .schedule-preview-diff-head{display:none}#schedule-change-preview-modal .schedule-preview-diff-row{padding:9px 0}#schedule-change-preview-modal .schedule-preview-employee-head{align-items:flex-start}}'
+    ].join('');
+
+    $('<style type="text/css" id="schedule-change-preview-style"></style>').text(css).appendTo('head');
+
+    var $trigger = $('<button type="button" id="schedule-change-preview-trigger"><span>Посмотреть изменения</span><span class="schedule-preview-count">0</span></button>');
+    $('body').append($trigger);
+
+    var $modal = $('<div id="schedule-change-preview-modal" class="schedule-modal" aria-hidden="true" role="dialog" aria-modal="true"></div>');
+    var $card = $('<div class="schedule-modal-card schedule-preview-modal-card"></div>');
+    $card.append($('<h3 class="schedule-modal-title">Новый график и изменения</h3>'));
+    $card.append($('<p class="schedule-preview-intro" id="schedule-preview-intro"></p>'));
+    $card.append($('<div id="schedule-preview-employees"></div>'));
+
+    var $actions = $('<div class="schedule-preview-actions"></div>');
+    var $sendAll = $('<button type="button" class="mode-btn schedule-preview-send-all">Отправить всем</button>');
+    var $rightActions = $('<div class="schedule-preview-actions-right"></div>');
+    var $close = $('<button type="button" class="mode-btn" id="schedule-preview-close">Закрыть</button>');
+    $rightActions.append($close);
+    $actions.append($sendAll, $rightActions);
+    $card.append($actions);
+    $modal.append($card);
+    $('body').append($modal);
+
+    $trigger.on('click', function () {
+        schedulePreviewRender();
+        if (typeof rememberScheduleModalFocus === 'function') rememberScheduleModalFocus();
+        $modal.addClass('active').attr('aria-hidden', 'false');
+        $modal.find('#schedule-preview-close').trigger('focus');
+    });
+    $close.on('click', schedulePreviewClose);
+    $modal.on('click', function (event) {
+        if (event.target === this) schedulePreviewClose();
+    });
+    $sendAll.on('click', function () {
+        var count = Object.keys(scheduleChangeLog).length;
+        schedulePreviewNotify('Заглушка: отправка сообщения всем изменённым сотрудникам (' + count + ') будет подключена позже.');
+    });
+    $(document).on('click.scheduleChangePreview', '.schedule-preview-send-one', function () {
+        var id = String($(this).attr('data-employee-id') || '');
+        var employee = employeesList[id];
+        var name = employee && employee.name ? employee.name : ('ID ' + id);
+        schedulePreviewNotify('Заглушка: отправка сообщения сотруднику «' + name + '» будет подключена позже.');
+    });
+
+    schedulePreviewRefreshButton();
+}
+function schedulePreviewClose() {
+    $('#schedule-change-preview-modal').removeClass('active').attr('aria-hidden', 'true');
+    if (typeof restoreScheduleModalFocus === 'function') restoreScheduleModalFocus();
+}
+function schedulePreviewRender() {
+    schedulePreviewEnsureUi();
+    var $list = $('#schedule-preview-employees').empty();
+    var employeeIds = Object.keys(scheduleChangeLog);
+    employeeIds.sort(function (a, b) {
+        var nameA = employeesList[a] && employeesList[a].name ? employeesList[a].name : '';
+        var nameB = employeesList[b] && employeesList[b].name ? employeesList[b].name : '';
+        return String(nameA).localeCompare(String(nameB), 'ru');
+    });
+
+    $('#schedule-preview-intro').text('Сохранённые изменения: ' + employeeIds.length + ' сотрудников. Ниже показано, что изменилось, и актуальный график каждого сотрудника за выбранный месяц.');
+
+    if (!employeeIds.length) {
+        $list.append($('<div class="backup-empty">Пока нет сохранённых изменений графика.</div>'));
+        return;
+    }
+
+    $.each(employeeIds, function (index, employeeId) {
+        var employee = employeesList[employeeId] || {};
+        var employeeName = employee.name || ('Сотрудник ID ' + employeeId);
+        var employeeLog = scheduleChangeLog[employeeId];
+        var changedDates = Object.keys(employeeLog.dates).sort();
+
+        var $employee = $('<section class="schedule-preview-employee"></section>');
+        var $head = $('<div class="schedule-preview-employee-head"></div>');
+        $head.append($('<div class="schedule-preview-employee-name"></div>').text(employeeName));
+        $head.append($('<button type="button" class="mode-btn schedule-preview-send-one"></button>').attr('data-employee-id', employeeId).text('Отправить сообщение'));
+        $employee.append($head);
+
+        $employee.append($('<div class="schedule-preview-diff-title">Изменения</div>'));
+        $employee.append($('<div class="schedule-preview-diff-head"><span>Дата</span><span>Было</span><span>Стало</span></div>'));
+
+        $.each(changedDates, function (dateIndex, date) {
+            var diff = employeeLog.dates[date];
+            var $row = $('<div class="schedule-preview-diff-row"></div>');
+            $row.append($('<div class="schedule-preview-diff-date"></div>').text(schedulePreviewFormatDate(date)));
+            $row.append($('<div class="schedule-preview-old"></div>').text(schedulePreviewPlaceText(diff.before)));
+            $row.append($('<div class="schedule-preview-new"></div>').text(schedulePreviewPlaceText(diff.after)));
+            $employee.append($row);
+        });
+
+        var $details = $('<details class="schedule-preview-full-schedule"></details>');
+        var workDayCount = 0;
+        $.each(schedulePreviewDays, function (dayIndex, date) {
+            var dayMap = assignMap[date] || {};
+            if (normalizePlaceList(dayMap[employeeId] || []).length) workDayCount++;
+        });
+        $details.append($('<summary></summary>').text('Новый график за месяц: ' + workDayCount + ' смен (показать все даты)'));
+        var $days = $('<div class="schedule-preview-days"></div>');
+        $.each(schedulePreviewDays, function (dayIndex, date) {
+            var dayMap = assignMap[date] || {};
+            var places = normalizePlaceList(dayMap[employeeId] || []);
+            var $day = $('<div class="schedule-preview-day"></div>');
+            $day.append($('<span class="schedule-preview-day-date"></span>').text(schedulePreviewFormatDate(date)));
+            $day.append($('<span class="schedule-preview-day-place"></span>').text(schedulePreviewPlaceText(places)));
+            $days.append($day);
+        });
+        $details.append($days);
+        $employee.append($details);
+        $list.append($employee);
+    });
+}
+function schedulePreviewRefreshButton() {
+    if (!isEditMode) return;
+    schedulePreviewEnsureUi();
+    var count = Object.keys(scheduleChangeLog).length;
+    $('#schedule-change-preview-trigger')
+        .toggle(count > 0)
+        .find('.schedule-preview-count').text(count);
+    if ($('#schedule-change-preview-modal').hasClass('active')) schedulePreviewRender();
+}
+
 function normalizePlaceList(value){if(!value)return[];
 return $.isArray(value)?value:[value];
 }
@@ -5325,13 +5546,14 @@ function isEmployeeBusyOnDate(date,employeeId,allowedPlaceKey){
 function changeEmployeeAssignment(date,employeeId,placeKey,add){
     if(!employeeId)return;
     if(!assignMap[date])assignMap[date]={};
-    var places=normalizePlaceList(assignMap[date][employeeId]);
+    var places=normalizePlaceList(assignMap[date][employeeId]).slice(0);
     var next=[];
     for(var i=0;i<places.length;i++){if(places[i]!==placeKey)next.push(places[i]);
 }
     if(add)next.push(placeKey);
     if(next.length)assignMap[date][employeeId]=next;
 else delete assignMap[date][employeeId];
+    schedulePreviewRecordChange(date,employeeId,places,next);
     refreshEmployeeWorkplaceCell(date,employeeId);
 }
 function employeePrimaryFilialText(emp){
