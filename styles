@@ -1,6 +1,12 @@
 - крутой эффект шрифта
 color: transparent; -webkit-text-stroke: 1px rgba(231, 230, 222, 0.6);
 
+- типографика
+    font-size: 96px;
+    font-weight: 530;
+    line-height: 0.84;
+    letter-spacing: -0.095em;
+
 - задний фон 
 body {
   background:
@@ -22,3 +28,99 @@ body {
            font-[530]
            leading-[0.84]
            tracking-[-0.095em]">
+
+- задний фон (сетка)
+body::before {
+    content: "";
+    position: fixed; inset: 0; pointer-events: none;
+    opacity: .18;
+    background-image:
+      linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");
+    background-size: 76px 76px, 76px 76px, 180px 180px;
+    mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 92%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 92%);
+  }
+
+===
+- кольца
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  html, body { margin: 0; height: 100%; background: #0d0e10;
+    display: grid; place-items: center; }
+
+
+  /* центральная сфера */
+  .core {
+    width: 90px; height: 90px;
+  }
+
+  /* внешнее кольцо */
+  .orbit {
+    position: absolute; inset: 8%;
+    border: 1px solid rgba(218,218,208,.26);
+    border-radius: 50%;
+    box-shadow: 0 0 75px rgba(203,200,186,.06),
+                inset 0 0 65px rgba(203,200,186,.04);
+    animation: rotate 42s linear infinite;
+  }
+  .orbit::before, .orbit::after {
+    content: "";
+    position: absolute;
+    inset: 13% -8%;
+    border: 1px solid rgba(218,218,208,.25);
+    border-radius: 50%;
+    transform: rotate(58deg);
+  }
+  .orbit::after {
+    inset: -8% 13%;
+    transform: rotate(-58deg);
+  }
+
+  /* внутреннее пунктирное кольцо */
+  .orbit-inner {
+    position: absolute; inset: 25%;
+    border: 1px dashed rgba(218,218,208,.24);
+    border-radius: 50%;
+    animation: rotate 28s linear infinite reverse;
+  }
+  .orbit-inner::before {
+    content: "";
+    position: absolute; width: 9px; height: 9px;
+    top: 13%; left: 15%; border-radius: 50%;
+    background: #d9d5c9; box-shadow: 0 0 22px #d9d5c9;
+  }
+
+  @keyframes rotate { to { transform: rotate(360deg); } }
+</style></head><body>
+  <div class="stage">
+    <div class="orbit"><div class="orbit-inner"></div></div>
+    <div class="core"></div>
+  </div>
+</body></html>
+
+===
+
+- точка
+ .mono-label {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    text-transform: uppercase;
+    letter-spacing: .13em;
+    font-size: 10px;
+    color: #858680;
+    margin: 24px 0 8px;
+  }
+
+  .status {
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #c8c8bf;
+    box-shadow: 0 0 12px rgba(230,230,215,.8);
+  }
+  <span class="mono-label status" style="margin:0;">
+    <span class="status-dot"></span>
+    Available for select projects
+  </span>
