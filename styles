@@ -1,0 +1,23 @@
+- крутой эффект шрифта
+color: transparent; -webkit-text-stroke: 1px rgba(231, 230, 222, 0.6);
+
+- задний фон 
+body {
+  background:
+        radial-gradient(ellipse at 82% 14%, rgba(170, 156, 135, .13), transparent 27%),
+        radial-gradient(ellipse at 18% 48%, rgba(153, 165, 169, .09), transparent 31%),
+        radial-gradient(ellipse at 72% 83%, rgba(190, 190, 182, .07), transparent 25%),
+        linear-gradient(135deg, #08090a, #141517 48%, #090a0b);
+  
+  background-attachment: fixed; /* Чтобы фон не прокручивался */
+}
+ 
+- шрифты
+1: "SFMono-Regular", Consolas, "Liberation Mono", monospace
+2: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif
+
+-калиграфия
+<h1 class="text-[clamp(64px,10.1vw,144px)]
+           font-[530]
+           leading-[0.84]
+           tracking-[-0.095em]">
