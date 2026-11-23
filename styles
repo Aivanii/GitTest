@@ -10,6 +10,7 @@ body {
         linear-gradient(135deg, #08090a, #141517 48%, #090a0b);
   
   background-attachment: fixed; /* Чтобы фон не прокручивался */
+  isolation: isolate;
 }
  
 - шрифты
