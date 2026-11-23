@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MONO — независимая лаборатория цифровых систем, интерфейсов и технологий.">
+  <title>MONO — Systems Lab</title>
+  <style>
+    :root {
+      --bg: #090a0b;
+      --paper: #e9e7e1;
+      --muted: #858680;
+      --line: rgba(232, 231, 224, .16);
+      --glass: rgba(255, 255, 255, .045);
+      --silver: #bfc2c0;
+      --warm: #aa9c87;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 40px; }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--paper);
+      background:
+        radial-gradient(ellipse at 82% 14%, rgba(170, 156, 135, .13), transparent 27%),
+        radial-gradient(ellipse at 18% 48%, rgba(153, 165, 169, .09), transparent 31%),
+        radial-gradient(ellipse at 72% 83%, rgba(190, 190, 182, .07), transparent 25%),
+        linear-gradient(135deg, #08090a, #141517 48%, #090a0b);
+      background-attachment: fixed;
+      font-family: var(--sans);
+      line-height: 1.5;
+      isolation: isolate;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: .18;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E");
+      background-size: 76px 76px, 76px 76px, 180px 180px;
+      mask-image: linear-gradient(to bottom, black, transparent 92%);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      z-index: -2;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 28% 28%, rgba(219, 205, 180, .07), transparent 24%),
+        radial-gradient(ellipse at 77% 56%, rgba(190, 203, 207, .07), transparent 26%);
+      filter: blur(48px);
+      animation: atmosphere 24s ease-in-out infinite alternate;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    .shell { width: min(1320px, calc(100% - 112px)); margin: 0 auto; }
+    .mono { font-family: var(--mono); text-transform: uppercase; letter-spacing: .13em; }
+    .muted { color: var(--muted); }
+    .rule { height: 1px; background: var(--line); }
+    .glass {
+      background: linear-gradient(145deg, rgba(255,255,255,.085), rgba(255,255,255,.018));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 24px 70px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.07);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    /* Узкая боковая навигация вместо привычной шапки */
+    .rail {
+      position: fixed;
+      z-index: 20;
+      inset: 0 auto 0 0;
+      width: 66px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 25px 0 20px;
+      border-right: 1px solid rgba(255,255,255,.09);
+      background: rgba(8,9,10,.42);
+      backdrop-filter: blur(18px);
+    }
+    .rail-logo {
+      width: 31px; height: 31px;
+      display: grid; place-items: center;
+      border: 1px solid rgba(235,233,225,.55);
+      border-radius: 50%;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: -.08em;
+    }
+    .rail-nav { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+    .rail-nav a {
+      color: #858681;
+      font: 9px var(--mono);
+      letter-spacing: .12em;
+      writing-mode: vertical-rl;
+      transition: color .25s, transform .25s;
+    }
+    .rail-nav a:hover { color: var(--paper); transform: translateX(2px); }
+    .rail-bottom { color: #6e706d; font: 9px var(--mono); writing-mode: vertical-rl; }
+
+    .topline {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font: 9px var(--mono);
+      letter-spacing: .14em;
+    }
+    .topline-left, .topline-right { display: flex; align-items: center; gap: 13px; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #c8c8bf; box-shadow: 0 0 12px rgba(230,230,215,.8); }
+
+    /* Первый экран — типографика и схема, а не текст рядом с картинкой */
+    .hero { position: relative; padding: 75px 0 48px; }
+    .hero-meta { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font: 9px var(--mono); letter-spacing: .16em; }
+    .hero-stage { position: relative; min-height: 610px; padding-top: 62px; overflow: hidden; }
+    .hero-title {
+      position: relative;
+      z-index: 2;
+      max-width: 970px;
+      margin: 0;
+      font-size: clamp(64px, 10.1vw, 144px);
+      font-weight: 530;
+      line-height: .84;
+      letter-spacing: -.095em;
+    }
+    .hero-title .line-two { display: block; padding-left: 14.5%; color: #8e908d; }
+    .hero-title .line-three { display: block; padding-left: 4%; }
+    .hero-title .outline {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(231,230,222,.62);
+    }
+    .hero-description {
+      position: absolute;
+      z-index: 4;
+      left: 5%; bottom: 54px;
+      width: 230px;
+      color: #999a95;
+      font-size: 12px;
+      line-height: 1.85;
+    }
+    .hero-description b { color: var(--paper); font-weight: 500; }
+    .hero-mark {
+      position: absolute;
+      z-index: 1;
+      top: 15px; right: 4%;
+      width: min(41vw, 510px); aspect-ratio: 1;
+      display: grid; place-items: center;
+      opacity: .9;
+      pointer-events: none;
+    }
+    .orbit {
+      position: absolute;
+      inset: 8%;
+      border: 1px solid rgba(218,218,208,.26);
+      border-radius: 50%;
+      box-shadow: 0 0 75px rgba(203,200,186,.06), inset 0 0 65px rgba(203,200,186,.04);
+      animation: rotate 42s linear infinite;
+    }
+    .orbit::before, .orbit::after {
+      content: ""; position: absolute; inset: 13% -8%;
+      border: 1px solid rgba(218,218,208,.25); border-radius: 50%; transform: rotate(58deg);
+    }
+    .orbit::after { inset: -8% 13%; transform: rotate(-58deg); }
+    .orbit-inner {
+      position: absolute; inset: 25%; border: 1px dashed rgba(218,218,208,.24);
+      border-radius: 50%; animation: rotate 28s linear infinite reverse;
+    }
+    .orbit-inner::before {
+      content: ""; position: absolute; width: 9px; height: 9px; top: 13%; left: 15%;
+      border-radius: 50%; background: #d9d5c9; box-shadow: 0 0 22px #d9d5c9;
+    }
+    .orb-core {
+      width: 23%; aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle at 35% 28%, #eeece4 0, #999b99 22%, #46494a 58%, #17191a 76%);
+      box-shadow: 0 0 75px rgba(226,222,207,.22), inset -13px -16px 24px rgba(0,0,0,.65);
+      animation: pulse 5s ease-in-out infinite;
+    }
+    .crosshair { position: absolute; width: 125%; height: 1px; background: rgba(220,220,210,.11); }
+    .crosshair::after { content: ""; position: absolute; height: 125px; width: 1px; background: rgba(220,220,210,.11); left: 50%; top: -62px; }
+    .orbit-label { position: absolute; color: rgba(223,221,212,.54); font: 8px var(--mono); letter-spacing: .16em; }
+    .orbit-label.one { top: 12%; right: 4%; }
+    .orbit-label.two { left: 3%; bottom: 15%; }
+    .hero-index {
+      position: absolute; right: 3%; bottom: 46px;
+      display: flex; align-items: center; gap: 14px;
+      color: #92938e; font: 9px var(--mono); letter-spacing: .14em;
+    }
+    .hero-index::before { content: ""; width: 54px; height: 1px; background: #92938e; }
+    .hero-bottom { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; padding: 21px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .hero-stat { display: flex; align-items: baseline; gap: 11px; }
+    .hero-stat strong { font-size: 22px; font-weight: 450; letter-spacing: -.06em; }
+    .hero-stat span { color: var(--muted); font: 9px var(--mono); letter-spacing: .1em; }
+
+    /* Бегущая строка */
+    .ticker { overflow: hidden; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.018); }
+    .ticker-track {
+      display: flex; width: max-content; gap: 34px; padding: 17px 0;
+      color: #9b9d98; font: 9px var(--mono); letter-spacing: .2em;
+      animation: ticker 34s linear infinite;
+    }
+    .ticker-track span { white-space: nowrap; }
+    .ticker-track i { color: #c2b8a7; font-style: normal; }
+
+    /* Проекты как редакционная лента */
+    .work { padding: 125px 0 115px; }
+    .section-kicker { display: flex; justify-content: space-between; align-items: center; margin-bottom: 46px; color: var(--muted); font: 9px var(--mono); letter-spacing: .16em; }
+    .work-heading { display: grid; grid-template-columns: 1fr 230px; align-items: end; gap: 30px; margin-bottom: 54px; }
+    .work-heading h2 { max-width: 760px; margin: 0; font-size: clamp(48px, 7vw, 92px); font-weight: 500; line-height: .91; letter-spacing: -.085em; }
+    .work-heading p { margin: 0 0 5px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .project-grid { display: grid; grid-template-columns: 1.28fr .72fr; gap: 16px; align-items: stretch; }
+    .project-main {
+      position: relative; min-height: 490px; overflow: hidden; padding: 30px;
+      border-radius: 3px; background: linear-gradient(145deg, rgba(255,255,255,.085), rgba(255,255,255,.012));
+      border: 1px solid var(--line);
+    }
+    .project-main::before {
+      content: ""; position: absolute; width: 470px; height: 470px; right: -70px; top: -35px;
+      border-radius: 50%; border: 1px solid rgba(230,228,216,.26);
+      box-shadow: 0 0 0 28px rgba(255,255,255,.018), 0 0 0 58px rgba(255,255,255,.014), 0 0 85px rgba(255,255,255,.08);
+    }
+    .project-main::after {
+      content: ""; position: absolute; width: 330px; height: 330px; right: 0; top: 35px;
+      border-radius: 50%; border: 1px dashed rgba(228,225,215,.27); animation: rotate 50s linear infinite;
+    }
+    .project-top { position: relative; z-index: 2; display: flex; justify-content: space-between; color: var(--muted); font: 9px var(--mono); letter-spacing: .13em; }
+    .project-sculpture {
+      position: absolute; z-index: 1; width: 230px; height: 230px; right: 16%; top: 21%;
+      border-radius: 50%; background: radial-gradient(circle at 35% 28%, #d3d1c8, #777a79 22%, #303436 49%, #131617 73%);
+      box-shadow: inset -25px -20px 40px rgba(0,0,0,.62), 0 0 90px rgba(209,204,190,.14);
+      animation: float 7s ease-in-out infinite;
+    }
+    .project-sculpture::before, .project-sculpture::after {
+      content: ""; position: absolute; inset: 35px -40px; border: 1px solid rgba(241,238,223,.45);
+      border-radius: 50%; transform: rotate(48deg);
+    }
+    .project-sculpture::after { inset: -40px 35px; transform: rotate(-48deg); }
+    .project-copy { position: absolute; z-index: 3; left: 30px; right: 30px; bottom: 28px; display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+    .project-copy h3 { max-width: 410px; margin: 0; font-size: clamp(32px, 4vw, 52px); font-weight: 480; letter-spacing: -.07em; line-height: .98; }
+    .project-copy p { max-width: 180px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+    .project-side { display: flex; flex-direction: column; gap: 16px; }
+    .project-item { position: relative; flex: 1; min-height: 230px; padding: 25px; border: 1px solid var(--line); background: rgba(255,255,255,.025); transition: background .3s, transform .3s; }
+    .project-item:hover { background: rgba(255,255,255,.07); transform: translateX(-5px); }
+    .project-item .project-top { margin-bottom: 42px; }
+    .project-item h3 { max-width: 280px; margin: 0; font-size: 27px; font-weight: 480; line-height: 1.05; letter-spacing: -.06em; }
+    .project-item p { max-width: 260px; margin: 12px 0 0; color: var(--muted); font-size: 11px; }
+    .item-arrow { position: absolute; right: 24px; bottom: 22px; color: #c9c8c0; font-size: 20px; transition: transform .25s; }
+    .project-item:hover .item-arrow { transform: translate(4px,-4px); }
+
+    /* Направления — строки вместо однотипных карточек */
+    .manifesto { padding: 105px 0 125px; background: linear-gradient(90deg, rgba(255,255,255,.018), transparent 70%); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .manifesto-head { display: grid; grid-template-columns: 1fr 220px; gap: 30px; margin-bottom: 62px; }
+    .manifesto-head h2 { margin: 0; font-size: clamp(42px, 6vw, 76px); font-weight: 480; line-height: .94; letter-spacing: -.08em; }
+    .manifesto-head p { align-self: end; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .discipline { display: grid; grid-template-columns: 75px 1fr 1fr 35px; align-items: center; gap: 20px; padding: 25px 0; border-top: 1px solid var(--line); transition: padding .3s; }
+    .discipline:last-child { border-bottom: 1px solid var(--line); }
+    .discipline:hover { padding-left: 12px; }
+    .discipline-number { color: #777974; font: 10px var(--mono); }
+    .discipline h3 { margin: 0; font-size: clamp(22px, 3vw, 36px); font-weight: 450; letter-spacing: -.055em; }
+    .discipline p { max-width: 360px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.7; }
+    .discipline-arrow { color: #a7a69e; font-size: 18px; transition: transform .25s; }
+    .discipline:hover .discipline-arrow { transform: translate(4px,-4px); }
+
+    /* Финальный экран — не обычная контактная карточка */
+    .contact { position: relative; padding: 130px 0 115px; overflow: hidden; }
+    .contact::before {
+      content: "M"; position: absolute; z-index: -1; right: 3%; top: -95px;
+      color: rgba(255,255,255,.025); font-size: clamp(300px, 48vw, 650px); line-height: 1;
+      font-weight: 700; letter-spacing: -.15em; pointer-events: none;
+    }
+    .contact-top { display: flex; justify-content: space-between; margin-bottom: 55px; color: var(--muted); font: 9px var(--mono); letter-spacing: .15em; }
+    .contact-content { display: grid; grid-template-columns: 1fr 280px; gap: 40px; align-items: end; }
+    .contact h2 { max-width: 850px; margin: 0; font-size: clamp(60px, 10vw, 130px); font-weight: 470; line-height: .83; letter-spacing: -.095em; }
+    .contact h2 span { color: #898b87; }
+    .contact-action { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; padding-bottom: 5px; }
+    .contact-action p { max-width: 230px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .contact-link { display: inline-flex; align-items: center; gap: 18px; padding: 15px 20px; color: #111213; background: #e7e5dc; border-radius: 2px; font-size: 12px; font-weight: 650; transition: transform .25s, box-shadow .25s; }
+    .contact-link:hover { transform: translateY(-4px); box-shadow: 0 14px 35px rgba(230,226,210,.16); }
+    footer { border-top: 1px solid var(--line); }
+    .footer-inner { min-height: 80px; display: flex; justify-content: space-between; align-items: center; gap: 20px; color: #737570; font: 9px var(--mono); letter-spacing: .12em; }
+    .footer-links { display: flex; gap: 22px; }
+    .footer-links a:hover { color: var(--paper); }
+
+    @keyframes rotate { to { transform: rotate(360deg); } }
+    @keyframes float { 0%,100% { translate: 0 0; } 50% { translate: 0 -13px; } }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+    @keyframes ticker { to { transform: translateX(-50%); } }
+    @keyframes atmosphere { from { transform: translate(-1%, -1%) scale(1); } to { transform: translate(1%, 1%) scale(1.06); } }
+
+    @media (max-width: 1000px) {
+      .shell { width: min(100% - 70px, 820px); }
+      .hero-stage { min-height: 570px; }
+      .hero-mark { right: -2%; width: 48vw; }
+      .hero-title { font-size: clamp(60px, 10vw, 110px); }
+      .project-grid { grid-template-columns: 1fr; }
+      .project-main { min-height: 440px; }
+      .project-side { display: grid; grid-template-columns: 1fr 1fr; }
+      .project-item { min-height: 230px; }
+    }
+    @media (max-width: 680px) {
+      .rail { position: absolute; width: auto; height: 58px; inset: 0 0 auto; flex-direction: row; padding: 0 19px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .rail-nav { flex-direction: row; gap: 17px; }
+      .rail-nav a { writing-mode: horizontal-tb; font-size: 8px; }
+      .rail-bottom { display: none; }
+      .shell { width: calc(100% - 38px); }
+      .topline { min-height: 95px; padding-top: 45px; font-size: 8px; }
+      .topline-right { display: none; }
+      .hero { padding: 53px 0 32px; }
+      .hero-meta { font-size: 8px; }
+      .hero-stage { min-height: 570px; padding-top: 75px; }
+      .hero-title { font-size: clamp(56px, 14vw, 90px); }
+      .hero-title .line-two { padding-left: 7%; }
+      .hero-title .line-three { padding-left: 1%; }
+      .hero-mark { width: 76vw; right: -13%; top: 145px; opacity: .62; }
+      .hero-description { left: 0; bottom: 36px; width: 195px; font-size: 11px; }
+      .hero-index { right: 0; bottom: 20px; font-size: 8px; }
+      .hero-bottom { grid-template-columns: 1fr; gap: 12px; padding: 18px 0; }
+      .hero-stat strong { font-size: 19px; }
+      .work { padding: 85px 0; }
+      .section-kicker { margin-bottom: 30px; font-size: 8px; }
+      .work-heading { grid-template-columns: 1fr; gap: 18px; margin-bottom: 32px; }
+      .work-heading h2 { font-size: clamp(40px, 10.5vw, 48px); }
+      .work-heading p { max-width: 280px; }
+      .project-main { min-height: 420px; padding: 20px; }
+      .project-main::before { width: 330px; height: 330px; right: -95px; top: 25px; }
+      .project-main::after { width: 240px; height: 240px; right: -30px; top: 70px; }
+      .project-sculpture { width: 160px; height: 160px; right: 10%; top: 26%; }
+      .project-copy { left: 20px; right: 20px; bottom: 22px; flex-direction: column; align-items: flex-start; }
+      .project-copy h3 { font-size: 39px; }
+      .project-copy p { max-width: 220px; }
+      .project-side { grid-template-columns: 1fr; }
+      .project-item { min-height: 205px; }
+      .manifesto { padding: 80px 0; }
+      .manifesto-head { grid-template-columns: 1fr; gap: 18px; margin-bottom: 38px; }
+      .manifesto-head h2 { font-size: 54px; }
+      .manifesto-head p { max-width: 270px; }
+      .discipline { grid-template-columns: 35px 1fr 22px; gap: 10px; padding: 21px 0; }
+      .discipline h3 { font-size: 24px; }
+      .discipline p { grid-column: 2 / 3; grid-row: 2; }
+      .discipline-arrow { grid-column: 3; grid-row: 1; }
+      .contact { padding: 90px 0 80px; }
+      .contact-top { margin-bottom: 42px; font-size: 8px; }
+      .contact-content { grid-template-columns: 1fr; gap: 35px; }
+      .contact h2 { font-size: clamp(62px, 16vw, 92px); }
+      .contact-action { padding-left: 5px; }
+      .footer-inner { min-height: 90px; align-items: flex-start; justify-content: center; flex-direction: column; gap: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="rail" aria-label="Быстрая навигация">
+    <a class="rail-logo" href="#top" aria-label="MONO — наверх">M</a>
+    <nav class="rail-nav">
+      <a href="#work" aria-label="Исследования" title="Исследования">01</a>
+      <a href="#approach" aria-label="Подход" title="Подход">02</a>
+      <a href="#contact" aria-label="Контакты" title="Контакты">03</a>
+    </nav>
+    <span class="rail-bottom">SCROLL TO EXPLORE</span>
+  </aside>
+
+  <main id="top">
+    <div class="shell">
+      <div class="topline">
+        <div class="topline-left"><span>MONO®</span><span>/</span><span>INDEPENDENT SYSTEMS LAB</span></div>
+        <div class="topline-right"><span class="status-dot"></span><span>AVAILABLE FOR SELECT PROJECTS</span><span>/</span><span>EST. 2026</span></div>
+      </div>
+
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-meta"><span>THINK IN SYSTEMS — 001</span><span>DESIGN / ENGINEERING / FUTURE</span></div>
+        <div class="hero-stage">
+          <h1 class="hero-title" id="hero-title">
+            <span>За пределами</span>
+            <span class="line-two">обычного</span>
+            <span class="line-three outline">интерфейса.</span>
+          </h1>
+          <div class="hero-mark" aria-hidden="true">
+            <div class="crosshair"></div>
+            <div class="orbit"><div class="orbit-inner"></div></div>
+            <div class="orb-core"></div>
+            <span class="orbit-label one">FIG. 001 — CORE</span>
+            <span class="orbit-label two">SYSTEM / 01</span>
+          </div>
+          <p class="hero-description">Мы проектируем <b>цифровую среду</b>, в которой сложные технологии становятся естественной частью жизни.</p>
+          <span class="hero-index">SCROLL TO DISCOVER</span>
+        </div>
+        <div class="hero-bottom">
+          <div class="hero-stat"><strong>01—∞</strong><span>IDEAS TO SYSTEMS</span></div>
+          <div class="hero-stat"><strong>100%</strong><span>FOCUS ON DETAIL</span></div>
+          <div class="hero-stat"><strong>NO LIMITS</strong><span>JUST BETTER QUESTIONS</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>THINK DIFFERENTLY</span><i>✳</i><span>BUILD WITH PURPOSE</span><i>✳</i><span>LESS NOISE / MORE MEANING</span><i>✳</i><span>TECHNOLOGY IS A TOOL</span><i>✳</i>
+        <span>THINK DIFFERENTLY</span><i>✳</i><span>BUILD WITH PURPOSE</span><i>✳</i><span>LESS NOISE / MORE MEANING</span><i>✳</i><span>TECHNOLOGY IS A TOOL</span><i>✳</i>
+      </div>
+    </div>
+
+    <section class="work" id="work">
+      <div class="shell">
+        <div class="section-kicker"><span>01 / SELECTED EXPERIMENTS</span><span>2026—ONGOING</span></div>
+        <div class="work-heading">
+          <h2>Не просто<br>делаем. <span class="muted">Переосмысляем.</span></h2>
+          <p>Каждый проект — это попытка найти более точный способ соединить человека, данные и технологии.</p>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-main">
+            <div class="project-top"><span>PROJECT 001 / DIGITAL ECOSYSTEM</span><span>↗ 01</span></div>
+            <div class="project-sculpture" aria-hidden="true"></div>
+            <div class="project-copy">
+              <h3>Новая логика<br>цифрового мира.</h3>
+              <p>Единая среда, где информация превращается в ясные действия.</p>
+            </div>
+          </article>
+          <div class="project-side">
+            <a class="project-item" href="#approach">
+              <div class="project-top"><span>PROJECT 002</span><span>INTERFACE</span></div>
+              <h3>Интерфейс без лишних движений.</h3>
+              <p>Чистый путь от сложной задачи к простому решению.</p>
+              <span class="item-arrow">↗</span>
+            </a>
+            <a class="project-item" href="#approach">
+              <div class="project-top"><span>PROJECT 003</span><span>INTELLIGENCE</span></div>
+              <h3>Данные, которые работают.</h3>
+              <p>Умные процессы, освобождающие время для главного.</p>
+              <span class="item-arrow">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="manifesto" id="approach">
+      <div class="shell">
+        <div class="section-kicker"><span>02 / OUR METHOD</span><span>FROM THOUGHT TO FORM</span></div>
+        <div class="manifesto-head">
+          <h2>Технологии —<br>это только начало.</h2>
+          <p>Мы не привязываемся к инструментам. Мы выбираем подход, который лучше всего решает задачу.</p>
+        </div>
+
+        <div class="discipline">
+          <span class="discipline-number">01</span>
+          <h3>Исследуем</h3>
+          <p>Находим настоящую проблему за первоначальным запросом и формулируем правильный вопрос.</p>
+          <span class="discipline-arrow">↗</span>
+        </div>
+        <div class="discipline">
+          <span class="discipline-number">02</span>
+          <h3>Проектируем</h3>
+          <p>Собираем разрозненные идеи в ясную систему, где каждая деталь имеет смысл.</p>
+          <span class="discipline-arrow">↗</span>
+        </div>
+        <div class="discipline">
+          <span class="discipline-number">03</span>
+          <h3>Создаём</h3>
+          <p>Превращаем концепцию в работающий продукт — быстрый, понятный и устойчивый.</p>
+          <span class="discipline-arrow">↗</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="shell">
+        <div class="contact-top"><span>03 / THE NEXT MOVE</span><span>HAVE A QUESTION? GOOD.</span></div>
+        <div class="contact-content">
+          <h2>Давайте<br><span>изменим</span><br>привычное.</h2>
+          <div class="contact-action">
+            <p>Есть задача, идея или гипотеза? Самое время проверить, какой она может стать.</p>
+            <a class="contact-link" href="mailto:hello@mono.studio">Начать диалог <span>↗</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner">
+      <span>© 2026 MONO SYSTEMS LAB</span>
+      <span>INDEPENDENT BY DESIGN.</span>
+      <div class="footer-links"><a href="#top">НАВЕРХ ↑</a><a href="mailto:hello@mono.studio">EMAIL ↗</a></div>
+    </div>
+  </footer>
+</body>
+</html>
